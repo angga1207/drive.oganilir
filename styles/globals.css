@@ -2,32 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
+/* font family */
+@layer components {
+  html {
+    @apply scroll-smooth;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+  body {
+    @apply bg-[#fafafa] font-RedHatDisplay;
+  }
+
+  body.dark {
+    @apply bg-[#060818];
   }
 }
 
+/* body font-comfortaa */
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  font-family: "Red Hat Display", sans-serif;
+  font-weight: 700;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* container breakpoint */
+@layer components {
+  @media screen and (max-width: 639px) {
+    .container {
+      max-width: 100%;
+      padding: 0 1rem;
+    }
+  }
+  @media screen and (min-width: 640px) {
+    .container {
+      max-width: 100%;
+      padding: 0 1rem;
+    }
+  }
+  @media screen and (min-width: 768px) {
+    .container {
+      max-width: 100%;
+      padding: 0 1rem;
+    }
+  }
+  @media screen and (min-width: 1024px) {
+    .container {
+      max-width: 100%;
+      padding: 0 2rem;
+    }
+  }
+  @media screen and (min-width: 1280px) {
+    .container {
+      max-width: 100%;
+      padding: 0 2rem;
+    }
+  }
+  @media screen and (min-width: 1536px) {
+    .container {
+      max-width: 100%;
+      padding: 0 2rem;
+    }
+  }
+  @media screen and (min-width: 1792px) {
+    .container {
+      max-width: 100%;
+      padding: 0 2rem;
+    }
+  }
+  @media screen and (min-width: 2048px) {
+    .container {
+      max-width: 100%;
+      padding: 0 2rem;
+    }
+  }
+  @media screen and (min-width: 2304px) {
+    .container {
+      max-width: 100%;
+      padding: 0 2rem;
+    }
+  }
+  @media screen and (min-width: 2560px) {
+    .container {
+      max-width: 100%;
+      padding: 0 2rem;
+    }
   }
 }
