@@ -339,7 +339,7 @@ const Login = () => {
                                             </button>
                                         </div>
                                         <hr />
-                                        <div className="opacity-0">
+                                        <div className="">
                                             <div className="text-center text-white">
                                                 Masuk Menggunakan :
                                             </div>
