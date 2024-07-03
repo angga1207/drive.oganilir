@@ -26,12 +26,7 @@ const showSweetAlert = async (icon: any, title: any, text: any, confirmButtonTex
         icon: icon,
         title: title,
         html: text,
-        showCloseButton: true,
-        showCancelButton: false,
-        focusConfirm: false,
-        confirmButtonText: confirmButtonText ?? 'OK',
-        padding: '2em',
-        customClass: 'sweet-alerts',
+        confirmButtonText: confirmButtonText,
     });
 }
 
