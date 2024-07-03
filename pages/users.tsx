@@ -189,7 +189,7 @@ const Users = () => {
 
                 <div className="flex items-center justify-between">
                     <div className="font-semibold text-lg">
-                        Daftar Pengguna {search}
+                        Daftar Pengguna
                     </div>
                     <div className="flex items-center gap-x-3">
                         <form onSubmit={(e) => {

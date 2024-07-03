@@ -89,23 +89,21 @@ const Profile = () => {
                             password_confirmation: '',
                         });
                     }
-                    if (data.status === 'error') {
-                        showSweetAlert('error', 'Error', data.message, 'Tutup');
-                    }
-
-                    if (data.status === 'error validation') {
-                        Object.keys(data.message).map((key) => {
-                            const error = data.message[key];
-                            const el = document.getElementById(`error-profile-${key}`);
-                            if (el) {
-                                el.innerHTML = error;
-                            }
-                        });
-                    }
                 });
             }
+            
             if (data.status === 'error') {
                 showSweetAlert('error', 'Error', data.message, 'Tutup');
+            }
+
+            if (data.status === 'error validation') {
+                Object.keys(data.message).map((key) => {
+                    const error = data.message[key];
+                    const el = document.getElementById(`error-profile-${key}`);
+                    if (el) {
+                        el.innerHTML = error;
+                    }
+                });
             }
         });
     }
