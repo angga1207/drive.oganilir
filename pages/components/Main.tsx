@@ -89,6 +89,19 @@ const Main = () => {
         }
     }, []);
 
+    const reloadItems = () => {
+        // setIsLoaded(true);
+        getItems(router.query._id).then((res) => {
+            if (res.status === 'success') {
+                setDatas(res.data);
+            }
+            else if (res.status === 'error') {
+                showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
+            }
+            // setIsLoaded(false);
+        });
+    }
+
     useEffect(() => {
         if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
             // const audio = new Audio('/assets/audio/notification.mp3');
@@ -232,19 +245,6 @@ const Main = () => {
             });
         }
     }, [router.query._id]);
-
-    const reloadItems = () => {
-        // setIsLoaded(true);
-        getItems(router.query._id).then((res) => {
-            if (res.status === 'success') {
-                setDatas(res.data);
-            }
-            else if (res.status === 'error') {
-                showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
-            }
-            // setIsLoaded(false);
-        });
-    }
 
     const [search, setSearch] = useState<any>(null);
     const [searchedItems, setSearchedItems] = useState<any>([]);
