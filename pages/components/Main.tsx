@@ -1334,8 +1334,9 @@ const Main = () => {
                                                         <Tippy content="Klik untuk menyalin tautan" delay={300}>
                                                             <div
                                                                 onClick={() => {
-                                                                    navigator.clipboard.writeText(ClientDomain() + '/sharer?_id=' + item?.slug);
-                                                                    showAlert('success', 'Berhasil', 'Tautan Berhasil Disalin');
+                                                                    // navigator.clipboard.writeText(ClientDomain() + '/sharer?_id=' + item?.slug);
+                                                                    // showAlert('success', 'Berhasil', 'Tautan Berhasil Disalin');
+                                                                    goShare(item);
                                                                 }}
                                                                 className="flex items-center gap-x-1 cursor-pointer">
                                                                 <FontAwesomeIcon icon={faShareAlt} className="w-3 h-3 text-green-500" />
@@ -1346,7 +1347,13 @@ const Main = () => {
                                                         </Tippy>
                                                     )}
                                                     {item.publicity.status == 'private' && (
-                                                        <FontAwesomeIcon icon={faLock} className="w-3 h-3 text-blue-500" />
+                                                        <div
+                                                            onClick={() => {
+                                                                goShare(item);
+                                                            }}
+                                                            className="flex items-center gap-x-1 cursor-pointer">
+                                                            <FontAwesomeIcon icon={faLock} className="w-3 h-3 text-blue-500" />
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>
