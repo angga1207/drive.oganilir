@@ -549,8 +549,8 @@ const Main = () => {
                                         <>
                                             <div className="absolute top-0 left-0 w-full h-full bg-sky-300 rounded">
                                                 <div className="w-full h-full flex items-center justify-center">
-                                                    <div className="relative z-20 text-2xl font-bold text-sky-300 tracking-widest">
-                                                        SEDANG MENGUNDUNG
+                                                    <div className="relative z-20 text-2xl font-bold text-sky-300 tracking-[20px]">
+                                                        SEDANG MENGUNDUH
                                                     </div>
                                                     <div className="absolute top-0 left-0 flex items-center w-full h-full animate-marquee z-10">
                                                         <div className="w-80 h-full bg-white/50 -skew-x-12"></div>

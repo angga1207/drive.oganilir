@@ -1148,12 +1148,14 @@ const Main = () => {
                                     onContextMenu={(e) => {
                                         e.preventDefault();
                                         // show context menu
-                                        setContextMenu({
-                                            top: e.clientY,
-                                            left: e.clientX,
-                                            show: true,
-                                            item: item,
-                                        });
+                                        if (isOnDownload === false) {
+                                            setContextMenu({
+                                                top: e.clientY,
+                                                left: e.clientX,
+                                                show: true,
+                                                item: item,
+                                            });
+                                        }
                                     }}
 
                                     draggable={true}>
@@ -1162,7 +1164,7 @@ const Main = () => {
                                         <div
                                             ref={contextMenuRef}
 
-                                            className={`bg-white absolute bottom-[10px] shadow rounded`}
+                                            className={`bg-white absolute z-20 bottom-[10px] shadow rounded`}
                                             style={{
                                                 left: (contextMenu?.left - 30) + 'px',
                                             }}>
@@ -1190,16 +1192,18 @@ const Main = () => {
                                                     </span>
                                                 </div>
 
-                                                <div
-                                                    onClick={() => {
-                                                        __confirmDownload(contextMenu?.item);
-                                                    }}
-                                                    className="px-6 py-2 hover:bg-sky-100 cursor-pointer flex items-center">
-                                                    <FontAwesomeIcon icon={faCloudDownloadAlt} className="w-4 h-4 mr-2 text-sky-600" />
-                                                    <span className="font-semibold text-sky-600">
-                                                        Unduh
-                                                    </span>
-                                                </div>
+                                                {item?.type == 'file' && (
+                                                    <div
+                                                        onClick={() => {
+                                                            __confirmDownload(contextMenu?.item);
+                                                        }}
+                                                        className="px-6 py-2 hover:bg-sky-100 cursor-pointer flex items-center">
+                                                        <FontAwesomeIcon icon={faCloudDownloadAlt} className="w-4 h-4 mr-2 text-sky-600" />
+                                                        <span className="font-semibold text-sky-600">
+                                                            Unduh
+                                                        </span>
+                                                    </div>
+                                                )}
 
                                                 <div
                                                     onClick={() => {

@@ -189,15 +189,29 @@ const Users = () => {
 
                 <div className="flex items-center justify-between">
                     <div className="font-semibold text-lg">
-                        Daftar Pengguna
+                        Daftar Pengguna {search}
                     </div>
-                    <div className="">
+                    <div className="flex items-center gap-x-3">
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(1);
+                            __getUsers();
+                        }}>
+                            <input
+                                type="search"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Cari Pengguna"
+                                className="p-2 border rounded ring-0 focus:ring-0 outline-0"
+                            />
+                        </form>
+
                         <button type="button"
                             onClick={(e) => {
                                 e.preventDefault();
                                 addUser();
                             }}
-                            className="rounded px-2 py-1 bg-green-500 text-green-100 cursor-pointer whitespace-nowrap flex items-center">
+                            className="rounded px-2 py-2 bg-green-500 text-green-100 cursor-pointer whitespace-nowrap flex items-center">
                             <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" />
                             Tambah Pengguna
                         </button>
