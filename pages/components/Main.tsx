@@ -62,7 +62,7 @@ const Main = () => {
         if (localStorage.getItem('user')) {
             const unRaw = JSON.parse(localStorage.getItem('user') ?? '{}');
             setUser(unRaw);
-            setStorageData(unRaw.storage);
+            setStorageData(unRaw?.storage);
         }
     }, [isMounted]);
 
