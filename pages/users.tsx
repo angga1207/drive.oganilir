@@ -12,13 +12,8 @@ const showSweetAlert = async (icon: any, title: any, text: any, confirmButtonTex
     Swal.fire({
         icon: icon,
         title: title,
-        html: text,
-        showCloseButton: true,
-        showCancelButton: false,
-        focusConfirm: false,
-        confirmButtonText: confirmButtonText ?? 'OK',
-        padding: '2em',
-        customClass: 'sweet-alerts',
+        text: text,
+        confirmButtonText: confirmButtonText,
     });
 }
 
@@ -58,6 +53,7 @@ const Users = () => {
         }
     }, [isMounted, currentPage])
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const __getUsers = () => {
         getUsers(search, currentPage).then((res) => {
             if (res.status === 'success') {
