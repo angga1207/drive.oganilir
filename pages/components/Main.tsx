@@ -761,67 +761,81 @@ const Main = () => {
                 <div className="mt-8">
                     <div className="flex flex-wrap gap-y-4 sm:flex-nowrap items-center justify-between">
 
-                        {isPathLoaded == true ? (
-                            <div className="flex items-center gap-x-2">
+                        <div className="flex items-center gap-x-2">
+                            {isPathLoaded == true ? (
+                                <div className="flex items-center gap-x-2">
 
-                                <div className="">
-                                    {selectedItems.length > 0 && (
-                                        <div>
-                                            {selectedItems.length} item terpilih
-                                        </div>
-                                    )}
-                                </div>
-
-                                <Tippy content="Pilih Folder / Berkas" delay={300}>
-                                    <div className={`${selectState ? 'bg-red-400 text-white' : 'bg-sky-400 text-sky-100'}  hover:bg-sky-600 hover:text-white transition-all duration-200 px-3 py-1.5 rounded flex items-center justify-center gap-1 cursor-pointer`}
-                                        onClick={() => {
-                                            setSelectState(!selectState);
-                                            if (selectState) {
-                                                setSelectedItems([]);
-                                            }
-                                        }}
-                                    >
-                                        <FontAwesomeIcon icon={faCheckSquare} className="w-4 h-4" />
-                                        {selectState ? 'BATAL PILIH' : 'PILIH'}
+                                    <div className="">
+                                        {selectedItems.length > 0 && (
+                                            <div>
+                                                {selectedItems.length} item terpilih
+                                            </div>
+                                        )}
                                     </div>
-                                </Tippy>
 
-                                {selectState && (
-                                    <>
-                                        <Tippy content="Pindahkan Folder / Berkas" delay={300}>
-                                            <div
-                                                onClick={(e) => {
-                                                    if (selectState) {
-                                                        if (selectedItems?.length > 0) {
-                                                            openModalMoveItems();
+                                    <Tippy content="Pilih Folder / Berkas" delay={300}>
+                                        <div className={`${selectState ? 'bg-red-400 text-white' : 'bg-sky-400 text-sky-100'}  hover:bg-sky-600 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer`}
+                                            onClick={() => {
+                                                setSelectState(!selectState);
+                                                if (selectState) {
+                                                    setSelectedItems([]);
+                                                }
+                                            }}
+                                        >
+                                            <FontAwesomeIcon icon={faCheckSquare} className="w-4 h-4" />
+                                            {selectState ? 'BATAL PILIH' : 'PILIH'}
+                                        </div>
+                                    </Tippy>
+
+                                    {selectState && (
+                                        <>
+                                            <Tippy content="Pindahkan Folder / Berkas" delay={300}>
+                                                <div
+                                                    onClick={(e) => {
+                                                        if (selectState) {
+                                                            if (selectedItems?.length > 0) {
+                                                                openModalMoveItems();
+                                                            }
                                                         }
-                                                    }
-                                                }}
-                                                className="bg-orange-200 text-orange-600 hover:bg-orange-400 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer">
-                                                <FontAwesomeIcon icon={faArrowsAlt} className="w-4 h-4" />
-                                            </div>
-                                        </Tippy>
+                                                    }}
+                                                    className="bg-orange-200 text-orange-600 hover:bg-orange-400 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer">
+                                                    <FontAwesomeIcon icon={faArrowsAlt} className="w-4 h-4" />
+                                                </div>
+                                            </Tippy>
 
-                                        <Tippy content="Hapus Folder / Berkas" delay={300}>
-                                            <div
-                                                onClick={(e) => {
-                                                    if (selectState) {
-                                                        if (selectedItems?.length > 0) {
-                                                            __confirmDeleteMass()
+                                            <Tippy content="Hapus Folder / Berkas" delay={300}>
+                                                <div
+                                                    onClick={(e) => {
+                                                        if (selectState) {
+                                                            if (selectedItems?.length > 0) {
+                                                                __confirmDeleteMass()
+                                                            }
                                                         }
-                                                    }
-                                                }}
-                                                className="bg-red-200 text-red-600 hover:bg-red-400 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer">
-                                                <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4" />
-                                            </div>
-                                        </Tippy>
-                                    </>
-                                )}
+                                                    }}
+                                                    className="bg-red-200 text-red-600 hover:bg-red-400 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer">
+                                                    <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4" />
+                                                </div>
+                                            </Tippy>
+                                        </>
+                                    )}
 
+                                </div>
+                            ) : (
+                                <div className="h-9 w-[100px] bg-sky-200 rounded animate-pulse"></div>
+                            )}
+
+
+                            <div
+                                onClick={(e) => {
+                                    openModalFolder();
+                                }}
+                                className="px-4 py-2 flex items-center group/item bg-green-400 hover:bg-green-600 rounded cursor-pointer transition-all duration-300">
+                                <FontAwesomeIcon icon={faFolderPlus} className="w-4 h-4 mr-2 text-white" />
+                                <span className="font-semibold text-white">
+                                    FOLDER
+                                </span>
                             </div>
-                        ) : (
-                            <div className="h-9 w-[100px] bg-sky-200 rounded animate-pulse"></div>
-                        )}
+                        </div>
 
                         {isPathLoaded == true ? (
                             <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2">

@@ -93,24 +93,20 @@ const Main = () => {
 
     const [showPanel, setShowPanel] = useState<boolean>(false);
     const [selectedItems, setSelectedItems] = useState<any>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [datas, setDatas] = useState<any>([]);
 
     useEffect(() => {
         if (readyToLoad && router.query._id) {
+            setIsLoading(true);
             getItemsSharer(router.query._id).then((res) => {
-                setDatas(res.data);
+                if (res.status === 'success') {
+                    setDatas(res.data);
+                }
+                setIsLoading(false);
             });
         }
     }, [router.query._id]);
-
-    const reloadItems = () => {
-        if (!router.query._id) {
-            return false;
-        }
-        getItemsSharer(router.query._id).then((res) => {
-            setDatas(res.data);
-        });
-    }
 
     const [paths, setPaths] = useState<any>([]);
     const [currentPath, setCurrentPath] = useState<any>(null); // [1]
@@ -348,6 +344,18 @@ const Main = () => {
                     <div className={`col-span-10 ${showPanel ? 'xl:col-span-7' : 'xl:col-span-10'} mt-0 relative overflow-auto max-w-full h-[calc(100vh-140px)]`}>
 
                         <div className="space-y-3">
+
+                            {isLoading && (
+                                <div className="flex items-center justify-center w-full h-full gap-x-4">
+                                    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-sky-500"></div>
+
+                                    <div className="text-center">
+                                        <div className="text-2xl font-bold">
+                                            Memuat Data...
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {datas?.map((item: any, index: number) => (
 
