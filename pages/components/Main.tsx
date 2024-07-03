@@ -63,6 +63,8 @@ const Main = () => {
             const unRaw = JSON.parse(localStorage.getItem('user') ?? '{}');
             setUser(unRaw);
             setStorageData(unRaw?.storage);
+        } else {
+            router.push('/login');
         }
     }, [isMounted]);
 
