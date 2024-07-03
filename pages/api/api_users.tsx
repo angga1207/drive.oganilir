@@ -114,6 +114,27 @@ export async function getProfile() {
     }
 }
 
+export async function getActivities(page: any = 1) {
+    try {
+        const res = await axios.get(`${baseUri}/getActivities`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${CurrentToken}`,
+            },
+            params: {
+                page: page
+            }
+        });
+        const data = await res.data;
+        return data;
+    } catch (error) {
+        return {
+            status: 'error',
+            message: error
+        }
+    }
+}
+
 export async function updateProfile(data: any) {
     try {
         const res = await axios.post(`${baseUri}/updateProfile`, data, {

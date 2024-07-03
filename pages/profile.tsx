@@ -1,10 +1,10 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Dialog, Transition } from '@headlessui/react';
-import { getProfile, updateProfile } from "@/pages/api/api_users";
+import { getProfile, updateProfile, getActivities } from "@/pages/api/api_users";
 
-import { faCloudUploadAlt, faCog, faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faCloudUploadAlt, faCog, faFolderPlus, faInfoCircle, faPlus, faShareAltSquare, faSignInAlt, faTimes, faUserEdit } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash, faSave } from "@fortawesome/free-regular-svg-icons";
+import { faCalendarAlt, faEye, faEyeSlash, faSave, faShareFromSquare } from "@fortawesome/free-regular-svg-icons";
 import Tippy from "@tippyjs/react";
 import 'tippy.js/dist/tippy.css';
 
@@ -52,25 +52,55 @@ const Profile = () => {
     });
     const [showPassword, setShowPassword] = useState(false);
 
+    const [activities, setActivities] = useState<any>([]);
+    const [activitiesPage, setActivitiesPage] = useState(1);
+    const [activitiesTotalPage, setActivitiesTotalPage] = useState(1);
+
     useEffect(() => {
-        getProfile().then((data) => {
-            if (data.status === 'success') {
-                setProfile(data.data);
-                setProfileInput({
-                    firstname: data.data.firstname,
-                    lastname: data.data.lastname,
-                    username: data.data.username,
-                    email: data.data.email,
-                    photo: '',
-                    password: '',
-                    password_confirmation: '',
-                });
-            }
-            if (data.status === 'error') {
-                showSweetAlert('error', 'Error', data.message, 'Tutup');
-            }
-        });
+        if (isMounted) {
+            getProfile().then((data) => {
+                if (data.status === 'success') {
+                    setProfile(data.data);
+                    setProfileInput({
+                        firstname: data.data.firstname,
+                        lastname: data.data.lastname,
+                        username: data.data.username,
+                        email: data.data.email,
+                        photo: '',
+                        password: '',
+                        password_confirmation: '',
+                    });
+                }
+                if (data.status === 'error') {
+                    showSweetAlert('error', 'Error', data.message, 'Tutup');
+                }
+            });
+
+            getActivities().then((data) => {
+                if (data.status === 'success') {
+                    setActivities(data.data.data);
+                    setActivitiesTotalPage(data.data.last_page);
+                }
+                if (data.status === 'error') {
+                    showSweetAlert('error', 'Error', data.message, 'Tutup');
+                }
+            });
+        }
     }, [isMounted]);
+
+    useEffect(() => {
+        if (isMounted) {
+            getActivities(activitiesPage).then((data) => {
+                if (data.status === 'success') {
+                    setActivities(data.data.data);
+                    setActivitiesTotalPage(data.data.last_page);
+                }
+                if (data.status === 'error') {
+                    showSweetAlert('error', 'Error', data.message, 'Tutup');
+                }
+            });
+        }
+    }, [activitiesPage]);
 
     const __saveProfile = () => {
         updateProfile(profileInput).then((data) => {
@@ -90,8 +120,18 @@ const Profile = () => {
                         });
                     }
                 });
+
+                getActivities(activitiesPage).then((data) => {
+                    if (data.status === 'success') {
+                        setActivities(data.data.data);
+                        setActivitiesTotalPage(data.data.last_page);
+                    }
+                    if (data.status === 'error') {
+                        showSweetAlert('error', 'Error', data.message, 'Tutup');
+                    }
+                });
             }
-            
+
             if (data.status === 'error') {
                 showSweetAlert('error', 'Error', data.message, 'Tutup');
             }
@@ -107,8 +147,6 @@ const Profile = () => {
             }
         });
     }
-
-    // console.log(profile);
 
     return (
         <>
@@ -344,9 +382,119 @@ const Profile = () => {
                     </form>
                 </div>
 
-                <div className="col-span-12 lg:col-span-8 my-6 p-4 bg-white shadow rounded">
+                <div className="col-span-12 lg:col-span-8 my-6 p-4 bg-white shadow rounded lg:h-[calc(100vh-180px)]">
                     <div className="font-semibold mb-2 pb-2 text-lg text-center border-b">
                         Aktivitas Saya
+                    </div>
+
+                    <div className="relative w-full lg:h-[calc(100vh-300px)] lg:overflow-auto">
+                        <table className="w-full">
+                            <thead className="sticky top-0 left-0 w-full">
+                                <tr>
+                                    <th className="p-4 bg-slate-500 text-white rounded-tl w-[250px]">
+                                        <div className="flex items-center">
+                                            <FontAwesomeIcon icon={faCalendarAlt} className="w-4 h-4 mr-2" />
+                                            <span>
+                                                Tanggal
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th className="p-4 bg-slate-500 text-white rounded-tr">
+                                        <div className="flex items-center">
+                                            <FontAwesomeIcon icon={faInfoCircle} className="w-4 h-4 mr-2" />
+                                            <span>
+                                                Aktivitas
+                                            </span>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {activities?.map((activity: any, index: number) => (
+                                    <tr className="border-b">
+                                        <td className="p-4">
+                                            <span className="mr-1">
+                                                {new Date(activity.created_at).toLocaleString('id-ID', {
+                                                    dateStyle: 'medium',
+                                                })}
+                                            </span>
+                                            <span>
+                                                - {new Date(activity.created_at).toLocaleTimeString('id-ID', {
+                                                    timeStyle: 'short',
+                                                })} WIB
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className="flex items-center gap-2">
+                                                <div>
+                                                    {activity.event}
+
+                                                    {activity.event == 'update-profile' && (
+                                                        <FontAwesomeIcon icon={faUserEdit} className="w-4 h-4 text-green-500" />
+                                                    )}
+
+                                                    {['login', 'google-login', 'login-google'].includes(activity.event) && (
+                                                        <FontAwesomeIcon icon={faSignInAlt} className="w-4 h-4 text-green-500" />
+                                                    )}
+
+                                                    {['share-file/folder', 'share-file/file', 'publicity-file', 'publicity-folder'].includes(activity.event) && (
+                                                        <FontAwesomeIcon icon={faShareFromSquare} className="w-4 h-4 text-green-500" />
+                                                    )}
+
+                                                    {['make-folder', 'create-folder-folder'].includes(activity.event) && (
+                                                        <FontAwesomeIcon icon={faFolderPlus} className="w-4 h-4 text-green-500" />
+                                                    )}
+
+                                                </div>
+                                                <div className="">
+                                                    {activity.description}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div className="w-full p-4 bg-white border-t">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                Halaman {activities.length > 0 ? activitiesPage : 0} dari {activitiesTotalPage}
+                            </div>
+
+                            <div className="flex items-center gap-x-2">
+                                <div>
+                                    <button
+                                        onClick={() => {
+                                            if (activitiesPage > 1) {
+                                                setActivitiesPage(activitiesPage - 1);
+                                            }
+                                        }}
+                                        className="px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center transition-all duration-500">
+                                        <span>
+                                            <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
+                                        </span>
+                                    </button>
+                                </div>
+
+                                <div>
+                                    <button
+                                        onClick={() => {
+                                            if (activitiesPage < activitiesTotalPage) {
+                                                setActivitiesPage(activitiesPage + 1);
+                                            }
+                                        }}
+                                        className="px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center transition-all duration-500">
+                                        <span>
+                                            <FontAwesomeIcon icon={faArrowRight} className="w-4 h-4" />
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
 
