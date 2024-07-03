@@ -1331,7 +1331,19 @@ const Main = () => {
                                                 </div>
                                                 <div className="">
                                                     {item.publicity.status == 'public' && (
-                                                        <FontAwesomeIcon icon={faShareAlt} className="w-3 h-3 text-green-500" />
+                                                        <Tippy content="Klik untuk menyalin tautan" delay={300}>
+                                                            <div
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(ClientDomain() + '/sharer?_id=' + item?.slug);
+                                                                    showAlert('success', 'Berhasil', 'Tautan Berhasil Disalin');
+                                                                }}
+                                                                className="flex items-center gap-x-1 cursor-pointer">
+                                                                <FontAwesomeIcon icon={faShareAlt} className="w-3 h-3 text-green-500" />
+                                                                <div className="text-xs text-green-500">
+                                                                    Salin Tautan
+                                                                </div>
+                                                            </div>
+                                                        </Tippy>
                                                     )}
                                                     {item.publicity.status == 'private' && (
                                                         <FontAwesomeIcon icon={faLock} className="w-3 h-3 text-blue-500" />

@@ -8,14 +8,14 @@ import axios, { AxiosRequestConfig } from "axios";
 // const CurrentToken = getCookie('token');
 
 export function BaseUri() {
-    // const uri = 'http://127.0.0.1:8000/api';
-    const uri = 'https://drive-backend.oganilirkab.go.id/api';
+    const uri = 'http://127.0.0.1:8000/api';
+    // const uri = 'https://drive-backend.oganilirkab.go.id/api';
     return uri;
 }
 
 export function ClientDomain() {
-    // const uri = 'http://localhost:3000';
-    const uri = 'https://drive.oganilirkab.go.id';
+    const uri = 'http://localhost:3000';
+    // const uri = 'https://drive.oganilirkab.go.id';
     return uri;
 }
 

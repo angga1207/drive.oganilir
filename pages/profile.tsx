@@ -2,9 +2,9 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { Dialog, Transition } from '@headlessui/react';
 import { getProfile, updateProfile, getActivities } from "@/pages/api/api_users";
 
-import { faArrowLeft, faArrowRight, faCloudUploadAlt, faCog, faFolderPlus, faInfoCircle, faPlus, faShareAltSquare, faSignInAlt, faTimes, faUserEdit } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faArrowsAlt, faCloudDownloadAlt, faCloudUploadAlt, faCog, faFolderPlus, faInfoCircle, faPen, faPlus, faShareAltSquare, faSignInAlt, faTimes, faUserEdit } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarAlt, faEye, faEyeSlash, faSave, faShareFromSquare } from "@fortawesome/free-regular-svg-icons";
+import { faCalendarAlt, faEye, faEyeSlash, faSave, faShareFromSquare, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import Tippy from "@tippyjs/react";
 import 'tippy.js/dist/tippy.css';
 
@@ -427,23 +427,44 @@ const Profile = () => {
                                         <td>
                                             <div className="flex items-center gap-2">
                                                 <div>
-                                                    {activity.event}
 
                                                     {activity.event == 'update-profile' && (
-                                                        <FontAwesomeIcon icon={faUserEdit} className="w-4 h-4 text-green-500" />
+                                                        <FontAwesomeIcon icon={faUserEdit} className="w-4 h-4 text-purple-500" />
                                                     )}
 
                                                     {['login', 'google-login', 'login-google'].includes(activity.event) && (
-                                                        <FontAwesomeIcon icon={faSignInAlt} className="w-4 h-4 text-green-500" />
+                                                        <FontAwesomeIcon icon={faSignInAlt} className="w-4 h-4 text-purple-500" />
                                                     )}
 
                                                     {['share-file/folder', 'share-file/file', 'publicity-file', 'publicity-folder'].includes(activity.event) && (
-                                                        <FontAwesomeIcon icon={faShareFromSquare} className="w-4 h-4 text-green-500" />
+                                                        <FontAwesomeIcon icon={faShareFromSquare} className="w-4 h-4 text-pink-500" />
                                                     )}
 
                                                     {['make-folder', 'create-folder-folder'].includes(activity.event) && (
-                                                        <FontAwesomeIcon icon={faFolderPlus} className="w-4 h-4 text-green-500" />
+                                                        <FontAwesomeIcon icon={faFolderPlus} className="w-4 h-4 text-indigo-500" />
                                                     )}
+
+                                                    {['rename-folder', 'rename-file'].includes(activity.event) && (
+                                                        <FontAwesomeIcon icon={faPen} className="w-4 h-4 text-sky-400" />
+                                                    )}
+
+                                                    {['upload-file'].includes(activity.event) && (
+                                                        <FontAwesomeIcon icon={faCloudUploadAlt} className="w-4 h-4 text-green-500" />
+                                                    )}
+
+                                                    {['move-item'].includes(activity.event) && (
+                                                        <FontAwesomeIcon icon={faArrowsAlt} className="w-4 h-4 text-orange-500" />
+                                                    )}
+
+                                                    {['delete-item'].includes(activity.event) && (
+                                                        <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4 text-red-500" />
+                                                    )}
+
+                                                    {['download-file'].includes(activity.event) && (
+                                                        <FontAwesomeIcon icon={faCloudDownloadAlt} className="w-4 h-4 text-green-500" />
+                                                    )}
+
+
 
                                                 </div>
                                                 <div className="">
