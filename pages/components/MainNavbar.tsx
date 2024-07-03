@@ -195,10 +195,7 @@ const MainNavbar = () => {
 
             </div >
 
-            <Main
-                HookSelectState={selectState}
-                HookSearch=''
-            />
+            <Main/>
         </>
     );
 };
