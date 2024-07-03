@@ -9,7 +9,7 @@ import axios, { AxiosRequestConfig } from "axios";
 
 export function BaseUri() {
     // const uri = 'http://127.0.0.1:8000/api';
-    const uri = 'http://drive-backend.oganilirkab.go.id/api';
+    const uri = 'https://drive-backend.oganilirkab.go.id/api';
     return uri;
 }
 
