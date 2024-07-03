@@ -51,6 +51,27 @@ export async function getItemsSharer(slug: any) {
     }
 }
 
+export async function getFolders(slug: any = null) {
+    try {
+        const res = await axios.get(`${baseUri}/getFolders`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${CurrentToken}`,
+            },
+            params: {
+                slug: slug
+            }
+        });
+        const data = await res.data;
+        return data;
+    } catch (error) {
+        return {
+            status: 'error',
+            message: error
+        }
+    }
+}
+
 export async function postRename(slug: any = null, name: any = null) {
     try {
         const res = await axios.post(`${baseUri}/rename/${slug}`, {

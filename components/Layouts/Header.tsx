@@ -79,7 +79,7 @@ const Header = () => {
                                 className="h-[50px]"
                                 alt="Logo Ogan Ilir" /> */}
                             <img
-                                src="https://drive.oganilirkab.go.id/images/logo.png"
+                                src="/logo.png"
                                 className="h-[50px]"
                                 alt="Logo Drive Ogan Ilir" />
 

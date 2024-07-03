@@ -186,7 +186,7 @@ const Login = () => {
 
                                     <div className="flex items-center justify-center gap-4 w-full">
                                         <img
-                                            src="https://drive.oganilirkab.go.id/images/logo.png"
+                                            src="/logo.png"
                                             className="h-[70px]"
                                             alt="Logo Drive Ogan Ilir" />
 

@@ -1,14 +1,14 @@
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Dialog, Transition } from '@headlessui/react';
-import { faCalendarAlt, faCaretSquareLeft, faCheckSquare, faEye, faFile, faFileArchive, faFileAudio, faFileExcel, faFilePdf, faFilePowerpoint, faFileWord, faFileZipper, faFolder, faFolderBlank, faFolderOpen, faImage, faPlusSquare, faSave, faShareSquare, faTrashAlt, faWindowMaximize, faWindowMinimize } from "@fortawesome/free-regular-svg-icons";
-import { faArrowsAlt, faCaretRight, faCheck, faCloudDownloadAlt, faCloudUploadAlt, faFolderPlus, faImagePortrait, faLink, faLock, faMinimize, faPen, faSearch, faShareAlt, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCalendarAlt, faCaretSquareLeft, faCheckSquare, faEdit, faEye, faFile, faFileArchive, faFileAudio, faFileExcel, faFilePdf, faFilePowerpoint, faFileWord, faFileZipper, faFolder, faFolderBlank, faFolderClosed, faFolderOpen, faImage, faPlusSquare, faSave, faShareSquare, faTrashAlt, faWindowMaximize, faWindowMinimize } from "@fortawesome/free-regular-svg-icons";
+import { faArrowsAlt, faCaretRight, faCheck, faChevronLeft, faChevronRight, faCloudDownloadAlt, faCloudUploadAlt, faFolderPlus, faImagePortrait, faLink, faLock, faMinimize, faPen, faSearch, faShareAlt, faTimes, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Tippy from "@tippyjs/react";
 import 'tippy.js/dist/tippy.css';
 
 import { BaseUri, ClientDomain } from "@/pages/api/serverIP";
-import { getItems, getSearch, postFolder, postMoveItems, postPublicity, postRename, postUpload, postDelete, postDownload } from "@/pages/api/main";
+import { getItems, getSearch, postFolder, postMoveItems, postPublicity, postRename, postUpload, postDelete, postDownload, getFolders } from "@/pages/api/main";
 import { getPath } from "@/pages/api/navbar";
 
 // Queueing Listeners Start
@@ -474,6 +474,30 @@ const Main = () => {
         }
     }
 
+    const confirmMoveMassTo = (targetId: any) => {
+        Swal.fire({
+            title: `${selectedItems.length} Item Akan Dipindahkan`,
+            text: 'Anda yakin ingin memindahkan item ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Pindahkan!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const sourceIds = selectedItems;
+                if (!sourceIds.includes(targetId)) {
+                    setFormMoveItems({
+                        targetId: targetId ?? 0,
+                        sourceIds: sourceIds,
+                    });
+                }
+                setSelectedItems([]);
+                setSelectState(false);
+                closeModalMoveItems();
+            }
+        });
+    }
+
     const __moveMassTo = (targetId: any) => {
         const sourceIds = selectedItems;
         if (!sourceIds.includes(targetId)) {
@@ -487,13 +511,41 @@ const Main = () => {
     }
 
     const [modalMoveItems, setModalMoveItems] = useState<boolean>(false);
+    const [folders, setFolders] = useState<any>([]);
+    const [folderPath, setFolderPath] = useState<any>([]);
+    const [currentFolder, setCurrentFolder] = useState<any>(null);
+    const [tempSelectFolder, setTempSelectFolder] = useState<any>(null);
 
-    const __moveMass = () => {
+    const openModalMoveItems = () => {
         setModalMoveItems(true);
+        getFolders().then((res) => {
+            if (res.status == 'success') {
+                setFolders(res?.data?.folders);
+                setFolderPath(res?.data?.path);
+                setCurrentFolder(res?.data?.currentPath);
+                setTempSelectFolder(0);
+            }
+        });
     }
+
+    const __pickFolder = (slug: any) => {
+        getFolders(slug).then((res) => {
+            if (res.status == 'success') {
+                setFolders(res?.data?.folders);
+                setFolderPath(res?.data?.path);
+                setCurrentFolder(res?.data?.currentPath);
+            }
+        });
+    }
+
+    // console.log(folderPath);
 
     const closeModalMoveItems = () => {
         setModalMoveItems(false);
+        setFolders([]);
+        setFolderPath([]);
+        setCurrentFolder(null);
+        setTempSelectFolder(null);
     }
 
     useEffect(() => {
@@ -639,9 +691,22 @@ const Main = () => {
             showAlert('info', 'Sedang Mengunduh', 'Mohon tunggu hingga proses selesai');
         }
     }
-    // setContextMenu
-    const [contextMenu, setContextMenu] 
 
+    const contextMenuRef = useRef<any>(null);
+    const [contextMenu, setContextMenu] = useState<any>({});
+
+    useEffect(() => {
+        const handleClickOutside = (event: any) => {
+            if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
+                setContextMenu({});
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [contextMenuRef]);
 
 
     return (
@@ -726,7 +791,7 @@ const Main = () => {
                                                 onClick={(e) => {
                                                     if (selectState) {
                                                         if (selectedItems?.length > 0) {
-                                                            __moveMass();
+                                                            openModalMoveItems();
                                                         }
                                                     }
                                                 }}
@@ -1046,7 +1111,7 @@ const Main = () => {
                             {datas?.map((item: any, index: number) => (
 
                                 <div key={`item-${item?.id}`}
-                                    className={`${onDragState ? '' : ''} ${pickedItem?.slug == item?.slug ? '!bg-slate-100' : ''} ${selectedItems.includes(item.slug) ? '!bg-slate-100' : ''} px-5 shadow bg-white hover:bg-slate-100 rounded flex flex-col xl:flex-row xl:items-center justify-between gap-y-3 group/item cursor-pointer select-none relative`}
+                                    className={`${onDragState ? '' : ''} px-5 shadow bg-white hover:bg-slate-100 rounded flex flex-col xl:flex-row xl:items-center justify-between gap-y-3 group/item cursor-pointer select-none relative border-2 border-transparent hover:border-sky-400 hover:shadow-md hover:shadow-sky-600 transition-all duration-300 ${pickedItem?.slug == item?.slug ? '!bg-slate-100 border-sky-400 shadow-md shadow-sky-600' : ''} ${selectedItems.includes(item.slug) ? '!bg-slate-100 border-sky-400 shadow-md shadow-sky-600' : ''}`}
                                     id={`listitem-${item.slug}`}
                                     onDragOver={
                                         (e) => {
@@ -1088,11 +1153,72 @@ const Main = () => {
                                             item: item,
                                         });
                                     }}
-                                    
+
                                     draggable={true}>
 
+                                    {(contextMenu?.show && contextMenu?.item?.id === item?.id) && (
+                                        <div
+                                            ref={contextMenuRef}
+
+                                            className={`bg-white absolute bottom-[10px] shadow rounded`}
+                                            style={{
+                                                left: (contextMenu?.left - 30) + 'px',
+                                            }}>
+                                            <div className="space-y-2">
+
+                                                <div
+                                                    onClick={() => {
+                                                        __confirmDeleteSingle(contextMenu?.item?.slug);
+                                                    }}
+                                                    className="px-6 py-2 hover:bg-red-100 cursor-pointer flex items-center">
+                                                    <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4 mr-2 text-red-600" />
+                                                    <span className="font-semibold text-red-600">
+                                                        Hapus
+                                                    </span>
+                                                </div>
+
+                                                <div
+                                                    onClick={() => {
+                                                        goShare(contextMenu?.item);
+                                                    }}
+                                                    className="px-6 py-2 hover:bg-green-100 cursor-pointer flex items-center">
+                                                    <FontAwesomeIcon icon={faShareSquare} className="w-4 h-4 mr-2 text-green-600" />
+                                                    <span className="font-semibold text-green-600">
+                                                        Bagikan
+                                                    </span>
+                                                </div>
+
+                                                <div
+                                                    onClick={() => {
+                                                        __confirmDownload(contextMenu?.item);
+                                                    }}
+                                                    className="px-6 py-2 hover:bg-sky-100 cursor-pointer flex items-center">
+                                                    <FontAwesomeIcon icon={faCloudDownloadAlt} className="w-4 h-4 mr-2 text-sky-600" />
+                                                    <span className="font-semibold text-sky-600">
+                                                        Unduh
+                                                    </span>
+                                                </div>
+
+                                                <div
+                                                    onClick={() => {
+                                                        goEdit(contextMenu?.item);
+                                                    }}
+                                                    className="px-6 py-2 hover:bg-sky-100 cursor-pointer flex items-center">
+                                                    <div className="w-4 h-4 mr-2 flex items-center justify-center">
+                                                        <FontAwesomeIcon icon={faPen} className="w-3 h-3 text-sky-600" />
+                                                    </div>
+                                                    <span className="font-semibold text-sky-600">
+                                                        Sunting
+                                                    </span>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {selectState && (
-                                        <div className="flex-none w-8">
+                                        <div className="flex-none w-8 z-10">
                                             <input
                                                 type="checkbox"
                                                 value={item.slug}
@@ -1108,7 +1234,7 @@ const Main = () => {
                                         </div>
                                     )}
 
-                                    <div className="grow flex items-center py-6"
+                                    <div className="grow flex items-center py-6 z-10"
                                         onClick={() => {
                                             if (selectState) {
                                                 if (selectedItems.includes(item.slug)) {
@@ -1236,7 +1362,7 @@ const Main = () => {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-between xl:justify-normal gap-x-4 w-full xl:w-auto">
+                                    <div className="flex items-center justify-between xl:justify-normal gap-x-4 w-full xl:w-auto z-10">
                                         {selectState == false && (
                                             <div className="flex items-center gap-x-2 transition-all duration-200 xl:opacity-0 xl:group-hover/item:opacity-100">
 
@@ -1339,12 +1465,18 @@ const Main = () => {
                                         )}
                                     </div>
 
+                                    <div className="z-0">
+                                        <img
+                                            className={`absolute top-0 right-[200px] w-auto h-full group-hover/item:blur-sm opacity-20 group-hover/item:opacity-100 ${pickedItem?.slug == item?.slug ? '!blur-sm !opacity-100' : ''}`}
+                                            src="/logo.png" />
+                                    </div>
+
                                     {isOnDownload && onDownloadId == item.slug && (
                                         <>
-                                            <div className="absolute top-0 left-0 w-full h-full bg-sky-300 rounded">
+                                            <div className="absolute top-0 left-0 w-full h-full bg-sky-300 rounded z-20">
                                                 <div className="w-full h-full flex items-center justify-center">
-                                                    <div className="relative z-20 text-2xl font-bold text-sky-300 tracking-widest">
-                                                        SEDANG MENGUNDUNG
+                                                    <div className="relative z-20 text-2xl font-bold text-sky-300 tracking-[20px]">
+                                                        SEDANG MENGUNDUH
                                                     </div>
                                                     <div className="absolute top-0 left-0 flex items-center w-full h-full animate-marquee z-10">
                                                         <div className="w-80 h-full bg-white/50 -skew-x-12"></div>
@@ -1779,7 +1911,137 @@ const Main = () => {
                                                 <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
                                             </button>
                                         </div>
-                                        <div className="flex items-center justify-center w-full h-full">
+                                        <div className="p-5">
+                                            <div className="text-sm font-semibold underline">
+                                                Pilih Folder
+                                            </div>
+
+                                            <div className="flex items-center font-semibold text-sm mt-2 select-none">
+
+                                                <div
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        __pickFolder(0);
+                                                        setTempSelectFolder(0);
+                                                    }}
+                                                    className="flex items-center cursor-pointer">
+                                                    <FontAwesomeIcon icon={faFolder}
+                                                        className={`${folderPath?.length == 0 ? '' : 'text-slate-500'} w-3 h-4 mr-1`} />
+                                                    <span className={`${folderPath?.length == 0 ? '' : 'text-slate-500'}`}>
+                                                        Root
+                                                    </span>
+                                                </div>
+
+                                                {folderPath?.length > 0 && (
+                                                    <>
+                                                        {folderPath?.map((folder: any, index: number) => (
+                                                            <div
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    __pickFolder(folder.slug);
+                                                                    setTempSelectFolder(folder);
+                                                                }}
+                                                                className="flex items-center pl-2 cursor-pointer"
+                                                                key={'folderPath-' + index}>
+                                                                <FontAwesomeIcon icon={faChevronRight} className="w-2 h-2 text-slate-400 mr-1" />
+                                                                <div className="flex items-center">
+                                                                    <FontAwesomeIcon icon={faFolder} className="w-3 h-4 mr-1 text-slate-500" />
+                                                                    <span className="text-slate-500">
+                                                                        {folder?.name}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </>
+                                                )}
+
+                                                {currentFolder && (
+                                                    <div
+                                                        onClick={(e) => {
+                                                            setTempSelectFolder(currentFolder);
+                                                        }}
+                                                        className="flex items-center pl-2">
+                                                        <FontAwesomeIcon icon={faChevronRight} className="w-2 h-2 text-slate-400" />
+                                                        <div className="flex items-center pl-2 cursor-pointer">
+                                                            <FontAwesomeIcon icon={faFolder} className="w-3 h-4 mr-1 text-slate-500" />
+                                                            <span className="text-slate-500">
+                                                                {currentFolder?.name}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                            </div>
+
+                                            <div className="mt-2 py-2 border-t space-y-2 font-normal select-none">
+
+                                                {folders?.length == 0 && (
+                                                    <div className="flex items-center justify-center flex-col gap-3 py-5">
+                                                        <div className="text-center mt-5 font-semibold text-lg">
+                                                            Tidak Ada Folder
+                                                        </div>
+
+                                                        <div
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                __pickFolder(currentFolder?.parent_slug);
+                                                                const parentFolder =
+                                                                    folders.find((f: any) => f.slug == currentFolder?.slug);
+                                                                setTempSelectFolder(parentFolder);
+                                                                // console.log(currentFolder, parentFolder);
+                                                            }}
+                                                            className="flex items-center cursor-pointer group/folder-item">
+                                                            <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3 mr-1 text-blue-800" />
+                                                            <div className="group-hover/folder-item:underline group-hover/folder-item:text-blue-700 flex items-center">
+                                                                <div>
+                                                                    Kembali
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {folders?.map((folder: any, index: number) => (
+                                                    <div className="flex items-center cursor-pointer group/folder-item">
+                                                        <FontAwesomeIcon icon={faFolder} className="w-4 h-4 mr-2 text-blue-800" />
+                                                        <div className={`${tempSelectFolder?.slug === folder?.slug ? 'underline text-blue-700' : ''} group-hover/folder-item:underline group-hover/folder-item:text-blue-700 flex items-center`}>
+                                                            <div
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    setTempSelectFolder(folder);
+                                                                }}
+
+                                                                onDoubleClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    __pickFolder(folder.slug);
+                                                                }}
+                                                            >
+                                                                {folder?.name}
+                                                            </div>
+                                                            <FontAwesomeIcon icon={faChevronRight} className="hidden group-hover/folder-item:block w-2 h-2 ml-1 text-blue-400" />
+                                                        </div>
+                                                    </div>
+                                                ))}
+
+                                            </div>
+
+                                            <div className="flex items-center justify-center gap-4 select-none mt-5">
+                                                {(tempSelectFolder || tempSelectFolder == 0) ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            confirmMoveMassTo(tempSelectFolder?.slug ?? 0);
+                                                        }}
+                                                        className="py-2 px-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all duration-200 flex items-center justify-center text-sm mt-5">
+                                                        <FontAwesomeIcon icon={faUpload} className="w-3 h-3 mr-1" />
+                                                        <span>
+                                                            Pindahkan Ke Folder "{tempSelectFolder?.name ?? 'ROOT'}"
+                                                        </span>
+                                                    </button>
+                                                ) : (
+                                                    <div className="h-12"></div>
+                                                )}
+                                            </div>
 
                                         </div>
                                     </Dialog.Panel>
