@@ -773,7 +773,7 @@ const Main = () => {
                                 </div>
 
                                 <Tippy content="Pilih Folder / Berkas" delay={300}>
-                                    <div className={`${selectState ? 'bg-red-400 text-white' : 'bg-sky-200 text-sky-600'}  hover:bg-sky-400 hover:text-white transition-all duration-200 px-3 py-1.5 rounded flex items-center justify-center gap-1 cursor-pointer`}
+                                    <div className={`${selectState ? 'bg-red-400 text-white' : 'bg-sky-400 text-sky-100'}  hover:bg-sky-600 hover:text-white transition-all duration-200 px-3 py-1.5 rounded flex items-center justify-center gap-1 cursor-pointer`}
                                         onClick={() => {
                                             setSelectState(!selectState);
                                             if (selectState) {
@@ -921,7 +921,7 @@ const Main = () => {
                                             onClick={() => {
                                                 setDropdownNew(!dropdownNew);
                                             }}>
-                                            <div className={`${dropdownNew ? 'bg-gradient-to-r from-blue-500 to-blue-300 text-white' : 'bg-sky-200 text-sky-600'} hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 hover:text-white shadow transition-all duration-300 px-5 py-2 rounded flex items-center justify-center gap-1 cursor-pointer font-semibold`}>
+                                            <div className={`${dropdownNew ? 'bg-gradient-to-r from-blue-500 to-blue-300 text-white' : 'bg-sky-400 text-sky-100'} hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 hover:text-white shadow transition-all duration-300 px-5 py-2 rounded flex items-center justify-center gap-1 cursor-pointer font-semibold`}>
                                                 <FontAwesomeIcon icon={faPlusSquare} className="w-3 h-3" />
                                                 UNGGAH
                                             </div>
@@ -979,8 +979,8 @@ const Main = () => {
                         <div className="mt-2 hidden xl:block">
                             {/* storageData */}
                             <Tippy content={`Kapasitas Drive Anda Tersisa ${storageData?.rest ?? 0}`} delay={300}>
-                                <div className="relative bg-gray-200 h-4 w-full xl:w-[300px] rounded-full overflow-hidden cursor-pointer group">
-                                    <div className="bg-gradient-to-r from-blue-500 to-blue-300 animate-pulse h-full"
+                                <div className="relative bg-white border border-slate-300 h-4 w-full xl:w-[300px] rounded-full overflow-hidden cursor-pointer group">
+                                    <div className="bg-gradient-to-r from-sky-500 to-sky-800 animate-pulses h-full"
                                         style={
                                             {
                                                 width: `${storageData?.percent ?? 0}%`
@@ -1018,8 +1018,8 @@ const Main = () => {
                                         }
                                     }}
                                     className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
-                                    <FontAwesomeIcon icon={faFolder} className="w-3 h-3 mr-1" />
-                                    <span className="whitespace-nowrap">
+                                    <FontAwesomeIcon icon={faFolder} className="w-4 h-4 mr-1" />
+                                    <span className="whitespace-nowrap text-lg">
                                         Root
                                     </span>
                                 </div>
@@ -1034,9 +1034,9 @@ const Main = () => {
                                             }
                                         }}
                                         className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
-                                        <FontAwesomeIcon icon={faCaretRight} className="w-3 h-3 text-gray-400 mr-1" />
-                                        <FontAwesomeIcon icon={faFolder} className="w-3 h-3 mr-1" />
-                                        <span className="whitespace-nowrap">
+                                        <FontAwesomeIcon icon={faCaretRight} className="w-4 h-4 text-gray-400 mr-1" />
+                                        <FontAwesomeIcon icon={faFolder} className="w-4 h-4 mr-1" />
+                                        <span className="whitespace-nowrap text-lg">
                                             {path.name}
                                         </span>
                                     </div>
@@ -1045,9 +1045,9 @@ const Main = () => {
                                 {currentPath && (
                                     <div
                                         className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
-                                        <FontAwesomeIcon icon={faCaretRight} className="w-3 h-3 text-gray-400 mr-1" />
-                                        <FontAwesomeIcon icon={faFolderOpen} className="w-3 h-3 mr-1" />
-                                        <span className="whitespace-nowrap">
+                                        <FontAwesomeIcon icon={faCaretRight} className="w-4 h-4 text-gray-400 mr-1" />
+                                        <FontAwesomeIcon icon={faFolderOpen} className="w-4 h-4 mr-1" />
+                                        <span className="whitespace-nowrap text-lg">
                                             {currentPath.name}
                                         </span>
                                     </div>

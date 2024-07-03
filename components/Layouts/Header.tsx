@@ -67,7 +67,7 @@ const Header = () => {
     return (
         <>
             <nav
-                className="flex-no-wrap relative flex w-full items-center justify-between bg-gradient-to-b from-sky-700 via-sky-500 to-sky-100 via-70% to-150% py-2 shadow-lg lg:flex-wrap lg:justify-start lg:py-4">
+                className="flex-no-wrap relative flex w-full items-center justify-between bg-gradient-to-b from-sky-400 via-sky-700 to-sky-800 via-70% to-150% py-2 shadow-lg lg:flex-wrap lg:justify-start lg:py-4">
                 <div className="flex w-full items-center justify-between px-3">
                     <div
                         className="!visible flex-grow basis-[100%] items-center flex lg:basis-auto">
@@ -244,13 +244,15 @@ const Header = () => {
                         </div>
                     </div>
                 </div>
+
                 <div className="absolute -bottom-0.5 left-0 w-full h-1">
                     <div className="relative w-full h-1">
                         <div className="h-full flex items-center gap-4 animate-marquee">
-                            <div className="flex-none w-32 h-1 rounded-full bg-sky-400/50 shadow-xl shadow-black"></div>
+                            <div className="flex-none w-32 h-1 rounded-full bg-sky-600 shadow-xl shadow-sky-800"></div>
                         </div>
                     </div>
                 </div>
+
             </nav>
         </>
     );
