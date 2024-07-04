@@ -1202,7 +1202,7 @@ const Main = () => {
 
                 {/* Main Start */}
                 <div className="grid grid-cols-10 gap-4">
-                    <div className={`col-span-10 ${showPanel ? 'xl:col-span-7' : 'xl:col-span-10'} mt-0 relative overflow-auto max-w-full h-[calc(100vh-280px)]`}>
+                    <div className={`col-span-10 ${showPanel ? 'xl:col-span-7' : 'xl:col-span-10'} mt-0 relative overflow-x-auto max-w-full h-[calc(100vh-280px)]`}>
 
                         {isLoaded && (
                             <div className="w-full h-full flex justify-center items-center rounded shadow-lg bg-white">

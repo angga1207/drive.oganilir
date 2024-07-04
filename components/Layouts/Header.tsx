@@ -1,7 +1,7 @@
 import { setCookie, getCookie, hasCookie, deleteCookie } from 'cookies-next';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { faUser } from "@fortawesome/free-regular-svg-icons";
-import { faSignOutAlt, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faHamburger, faSignOutAlt, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import Swal from 'sweetalert2';
@@ -173,7 +173,7 @@ const Header = () => {
                             className="relative group">
 
                             <div
-                                className="hidden-arrow flex items-center gap-x-2 whitespace-nowrap transition duration-150 ease-in-out motion-reduce:transition-none cursor-pointer pb-2"
+                                className="hidden lg:flex items-center gap-x-2 whitespace-nowrap transition duration-150 cursor-pointer pb-2"
                                 role="button">
                                 <div className="text-end">
                                     <div className="mr-2 font-bold text-base text-white">
@@ -191,6 +191,10 @@ const Header = () => {
                                     className="rounded-full bg-white p-1 w-[40px] h-[40px]"
                                     alt="Photo Profile" />
                             </div>
+
+                            <button type='button' className="block lg:hidden cursor-pointer hover:rotate-90 focus:rotate-90 transition-all duration-300">
+                                <FontAwesomeIcon icon={faBars} className="text-white h-8 w-8" />
+                            </button>
 
                             <ul
                                 className="fixed right-[20px] mt-0 z-50 hidden group-hover:block float-left m-0 min-w-max list-none overflow-hidden rounded-lg border-none bg-white bg-clip-padding text-left text-base shadow-lg dark:bg-neutral-700">
@@ -240,10 +244,10 @@ const Header = () => {
                                 </li>
 
                             </ul>
-                            
+
                         </div>
                     </div>
-                    
+
                 </div>
 
                 <div className="absolute -bottom-0.5 left-0 h-2 w-full">
