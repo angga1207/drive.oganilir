@@ -67,8 +67,9 @@ const Header = () => {
     return (
         <>
             <nav
-                className="flex-no-wrap relative flex w-full items-center justify-between bg-gradient-to-b from-sky-400 via-sky-700 to-sky-800 via-70% to-150% py-2 shadow-lg lg:flex-wrap lg:justify-start lg:py-4">
+                className="flex-no-wrap z-50 relative flex w-screen items-center justify-between bg-gradient-to-b from-sky-400 via-sky-700 to-sky-800 via-70% to-150% py-2 shadow-lg lg:flex-wrap lg:justify-start lg:py-4 overflow-hidden">
                 <div className="flex w-full items-center justify-between px-3">
+
                     <div
                         className="!visible flex-grow basis-[100%] items-center flex lg:basis-auto">
                         <Link
@@ -166,7 +167,6 @@ const Header = () => {
                         </Link>
                     </div>
 
-
                     <div className="flex-none relative flex items-center">
 
                         <div
@@ -193,8 +193,7 @@ const Header = () => {
                             </div>
 
                             <ul
-                                className="absolute right-0 mt-0 z-[1000] hidden group-hover:block float-left m-0 min-w-max list-none overflow-hidden rounded-lg border-none bg-white bg-clip-padding text-left text-base shadow-lg data-[twe-dropdown-show]:block dark:bg-neutral-700"
-                                aria-labelledby="dropdownMenuButton2">
+                                className="fixed right-[20px] mt-0 z-50 hidden group-hover:block float-left m-0 min-w-max list-none overflow-hidden rounded-lg border-none bg-white bg-clip-padding text-left text-base shadow-lg dark:bg-neutral-700">
 
                                 <li>
                                     <Link
@@ -241,12 +240,14 @@ const Header = () => {
                                 </li>
 
                             </ul>
+                            
                         </div>
                     </div>
+                    
                 </div>
 
-                <div className="absolute -bottom-0.5 left-0 w-full h-1">
-                    <div className="relative w-full h-1">
+                <div className="absolute -bottom-0.5 left-0 h-2 w-full">
+                    <div className="relative h-2">
                         <div className="h-full flex items-center gap-4 animate-marquee">
                             <div className="flex-none w-32 h-1 rounded-full bg-sky-600 shadow-xl shadow-sky-800"></div>
                         </div>

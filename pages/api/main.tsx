@@ -9,7 +9,7 @@ const baseUri = BaseUri();
 const CurrentToken = getCookie('token');
 
 
-export async function getItems(slug: any = null) {
+export async function getItems(slug: any = null, sort: any = 'created_at', order: any = 'asc') {
     try {
         const res = await axios.get(`${baseUri}/getItems`, {
             headers: {
@@ -17,7 +17,9 @@ export async function getItems(slug: any = null) {
                 Authorization: `Bearer ${CurrentToken}`,
             },
             params: {
-                slug: slug
+                slug: slug,
+                sort: sort,
+                order: order
             }
         });
         const data = await res.data;

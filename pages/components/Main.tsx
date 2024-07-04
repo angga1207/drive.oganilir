@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Dialog, Transition } from '@headlessui/react';
 import { faCalendarAlt, faCaretSquareLeft, faCheckSquare, faEdit, faEye, faFile, faFileArchive, faFileAudio, faFileExcel, faFilePdf, faFilePowerpoint, faFileWord, faFileZipper, faFolder, faFolderBlank, faFolderClosed, faFolderOpen, faImage, faPlusSquare, faSave, faShareSquare, faTrashAlt, faWindowMaximize, faWindowMinimize } from "@fortawesome/free-regular-svg-icons";
-import { faArrowsAlt, faCaretRight, faCheck, faChevronLeft, faChevronRight, faCloudDownloadAlt, faCloudUploadAlt, faFolderPlus, faImagePortrait, faLink, faLock, faMinimize, faPen, faSearch, faShareAlt, faTimes, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faArrowsAlt, faCaretRight, faCheck, faChevronLeft, faChevronRight, faCloudDownloadAlt, faCloudUploadAlt, faFolderPlus, faImagePortrait, faLink, faLock, faMinimize, faPen, faSearch, faShareAlt, faSortAlphaDown, faSortAlphaUp, faSortAmountDownAlt, faSortNumericDown, faSortNumericUp, faTimes, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Tippy from "@tippyjs/react";
 import 'tippy.js/dist/tippy.css';
@@ -72,11 +72,8 @@ const Main = () => {
     // Queueing Listeners Start
     const [isLoaded, setIsLoaded] = useState(false);
     const isLoadingText = 'Sedang Memuat...';
-    const [isQueueing, setIsQueueing] = useState(false);
-    const [isInQueue, setIsInQueue] = useState(false);
     const [hideQueue, setHideQueue] = useState(false);
     const [queueData, setQueueData] = useState<any>([]);
-    const [queueFilesCount, setQueueFilesCount] = useState(0);
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
@@ -219,11 +216,13 @@ const Main = () => {
     const [ExternalDrag, setExternalDrag] = useState<boolean>(true);
 
     const [datas, setDatas] = useState<any>([]);
+    const [sortBy, setSortBy] = useState<any>('name');
+    const [sortOrder, setSortOrder] = useState<any>('asc');
 
     useEffect(() => {
         if (readyToLoad) {
             setIsLoaded(true);
-            getItems(router.query._id).then((res) => {
+            getItems(router.query._id, sortBy, sortOrder).then((res) => {
                 if (res.status === 'success') {
                     setDatas(res.data);
                 }
@@ -233,11 +232,11 @@ const Main = () => {
                 setIsLoaded(false);
             });
         }
-    }, [router.query._id]);
+    }, [router.query._id, sortBy, sortOrder]);
 
     const reloadItems = () => {
         // setIsLoaded(true);
-        getItems(router.query._id).then((res) => {
+        getItems(router.query._id, sortBy, sortOrder).then((res) => {
             if (res.status === 'success') {
                 setDatas(res.data);
             }
@@ -300,6 +299,7 @@ const Main = () => {
             setOnUpload(true);
             setOnDragState(false);
 
+            // make queue upload panel bottom right
             for (let i = 0; i < files.files.length; i++) {
                 const newQueue = {
                     id: i + 1,
@@ -313,17 +313,15 @@ const Main = () => {
                     newQueue
                 ]);
             }
+            // store files data to local storage
 
             AxiosUploads(files.files).then((res: any) => {
                 if (res?.status == 'success') {
                     showAlert('success', 'Berhasil', res?.message);
                 }
-                else if (res?.status === 'error') {
+                else if (res?.status == 'error') {
                     showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
-                } else {
-                    showAlert('success', 'Berhasil', 'Berkas berhasil diunggah!');
                 }
-
                 // if (res?.data?.parent_slug == ID) {
                 reloadItems();
                 // }
@@ -366,6 +364,10 @@ const Main = () => {
                                 }
                             });
                         });
+                    }
+                }).then((res: any) => {
+                    if (res.data.status == 'error') {
+                        showSweetAlert('info', 'Peringatan', res?.data?.message, 'Tutup');
                     }
                 });
                 // const response = await res.data;
@@ -710,6 +712,21 @@ const Main = () => {
         };
     }, [contextMenuRef]);
 
+    const [dropdownSort, setDropdownSort] = useState<boolean>(false);
+    const dropdownSortRef = useRef<any>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: any) => {
+            if (dropdownSortRef.current && !dropdownSortRef.current.contains(event.target)) {
+                setDropdownSort(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [dropdownSortRef]);
 
     return (
         <>
@@ -870,7 +887,7 @@ const Main = () => {
                                                     {searchedItems?.length} item
                                                 </div>
                                             </div>
-                                            <div className="max-h-[400px] relative overflow-auto space-y-3 mt-4 select-none">
+                                            <div className="max-h-[400px] relative overflow-y-auto overflow-x-hidden space-y-3 mt-4 select-none">
                                                 {searchedItems.length == 0 && (
                                                     <div className="text-center text-slate-500">
                                                         Tidak ada item yang ditemukan
@@ -889,7 +906,7 @@ const Main = () => {
                                                                 <FontAwesomeIcon icon={item.type == 'folder' ? faFolder : faFile} className="w-4 h-4 text-blue-800" />
                                                             </div>
                                                             <div>
-                                                                <div className="font-semibold line-clamp-2 select-none">
+                                                                <div className="font-semibold line-clamp-2 select-none w-full">
                                                                     {item.type == 'folder' ? (
                                                                         <>
                                                                             {item.name}
@@ -1019,62 +1036,165 @@ const Main = () => {
                     )}
                     {/* Capacity Bar End */}
 
-                    {/* Navigation Start */}
-                    <div className="flex items-center gap-2 justify-start max-w-full overflow-auto mt-3 pb-3 select-none">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mt-3 pb-3">
+                        {/* Navigation Start */}
+                        <div className="flex items-center gap-2 justify-start max-w-full overflow-auto select-none">
 
-                        {isPathLoaded == true && (
-                            <>
-                                <div
-                                    onClick={() => {
-                                        if (selectState == false) {
-                                            router.query._id = '0';
-                                            router.push(router);
-                                        }
-                                    }}
-                                    className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
-                                    <FontAwesomeIcon icon={faFolder} className="w-4 h-4 mr-1" />
-                                    <span className="whitespace-nowrap text-lg">
-                                        Root
-                                    </span>
-                                </div>
-
-                                {paths?.map((path: any, index: number) => (
+                            {isPathLoaded == true && (
+                                <>
                                     <div
-                                        key={'path-' + index}
                                         onClick={() => {
                                             if (selectState == false) {
-                                                router.query._id = path.slug;
+                                                router.query._id = '0';
                                                 router.push(router);
                                             }
                                         }}
                                         className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
-                                        <FontAwesomeIcon icon={faCaretRight} className="w-4 h-4 text-gray-400 mr-1" />
                                         <FontAwesomeIcon icon={faFolder} className="w-4 h-4 mr-1" />
                                         <span className="whitespace-nowrap text-lg">
-                                            {path.name}
+                                            Root
                                         </span>
                                     </div>
-                                ))}
 
-                                {currentPath && (
+                                    {paths?.map((path: any, index: number) => (
+                                        <div
+                                            key={'path-' + index}
+                                            onClick={() => {
+                                                if (selectState == false) {
+                                                    router.query._id = path.slug;
+                                                    router.push(router);
+                                                }
+                                            }}
+                                            className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
+                                            <FontAwesomeIcon icon={faCaretRight} className="w-4 h-4 text-gray-400 mr-1" />
+                                            <FontAwesomeIcon icon={faFolder} className="w-4 h-4 mr-1" />
+                                            <span className="whitespace-nowrap text-lg">
+                                                {path.name}
+                                            </span>
+                                        </div>
+                                    ))}
+
+                                    {currentPath && (
+                                        <div
+                                            className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
+                                            <FontAwesomeIcon icon={faCaretRight} className="w-4 h-4 text-gray-400 mr-1" />
+                                            <FontAwesomeIcon icon={faFolderOpen} className="w-4 h-4 mr-1" />
+                                            <span className="whitespace-nowrap text-lg">
+                                                {currentPath.name}
+                                            </span>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {isPathLoaded == false && (
+                                <div className="h-4 w-[300px] bg-slate-200 rounded animate-pulse"></div>
+                            )}
+
+                        </div>
+                        {/* Navigation End */}
+
+                        {/* sort & order start */}
+                        <div className="self-end flex items-center">
+                            {/* dropdown menu */}
+                            <div className="relative"
+                                onClick={() => {
+                                    setDropdownSort(!dropdownSort);
+                                }}>
+                                <div className={`${dropdownSort ? 'text-sky-500' : ''} hover:text-sky-500 transition-all duration-300 px-5 py-2 rounded flex items-center justify-center gap-1 cursor-pointer font-semibold`}>
+                                    {/* {`${dropdownSort ? 'bg-gradient-to-r from-blue-500 to-blue-300 text-white' : 'bg-sky-400 text-sky-100'} hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 hover:text-white shadow transition-all duration-300 px-5 py-2 rounded flex items-center justify-center gap-1 cursor-pointer font-semibold`} */}
+                                    {sortBy == 'name' && sortOrder == 'asc' && (
+                                        <>
+                                            <FontAwesomeIcon icon={faSortAlphaDown} className="w-3 h-3" />
+                                            Nama (A-Z)
+                                        </>
+                                    )}
+
+                                    {sortBy == 'name' && sortOrder == 'desc' && (
+                                        <>
+                                            <FontAwesomeIcon icon={faSortAlphaUp} className="w-3 h-3" />
+                                            Nama (Z-A)
+                                        </>
+                                    )}
+
+                                    {sortBy == 'created_at' && sortOrder == 'asc' && (
+                                        <>
+                                            <FontAwesomeIcon icon={faSortNumericDown} className="w-3 h-3" />
+                                            Unggahan Terlama
+                                        </>
+                                    )}
+
+                                    {sortBy == 'created_at' && sortOrder == 'desc' && (
+                                        <>
+                                            <FontAwesomeIcon icon={faSortNumericUp} className="w-3 h-3" />
+                                            Unggahan Terbaru
+                                        </>
+                                    )}
+
+                                </div>
+
+                                <div
+                                    ref={dropdownSortRef}
+                                    className={`${dropdownSort ? 'block' : 'hidden'} absolute rounded bg-white shadow border min-w-[200px] right-0 mt-2 z-20`}>
+
                                     <div
-                                        className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
-                                        <FontAwesomeIcon icon={faCaretRight} className="w-4 h-4 text-gray-400 mr-1" />
-                                        <FontAwesomeIcon icon={faFolderOpen} className="w-4 h-4 mr-1" />
-                                        <span className="whitespace-nowrap text-lg">
-                                            {currentPath.name}
+                                        onClick={(e) => {
+                                            setSortBy('name');
+                                            setSortOrder('asc');
+                                            setDropdownSort(false);
+                                        }}
+                                        className={`${sortBy == 'name' && sortOrder == 'asc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 rounded-t cursor-pointer transition-all duration-300`}>
+                                        <FontAwesomeIcon icon={faSortAlphaDown} className="w-4 h-4 mr-2 group-hover/item:text-white" />
+                                        <span className="font-semibold group-hover/item:text-white">
+                                            Nama (A-Z)
                                         </span>
                                     </div>
-                                )}
-                            </>
-                        )}
 
-                        {isPathLoaded == false && (
-                            <div className="h-4 w-[300px] bg-slate-200 rounded animate-pulse"></div>
-                        )}
 
+                                    <div
+                                        onClick={(e) => {
+                                            setSortBy('name');
+                                            setSortOrder('desc');
+                                            setDropdownSort(false);
+                                        }}
+                                        className={`${sortBy == 'name' && sortOrder == 'desc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 cursor-pointer transition-all duration-300`}>
+                                        <FontAwesomeIcon icon={faSortAlphaUp} className="w-4 h-4 mr-2 group-hover/item:text-white" />
+                                        <span className="font-semibold group-hover/item:text-white">
+                                            Nama (Z-A)
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        onClick={(e) => {
+                                            setSortBy('created_at');
+                                            setSortOrder('desc');
+                                            setDropdownSort(false);
+                                        }}
+                                        className={`${sortBy == 'created_at' && sortOrder == 'desc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 rounded-b cursor-pointer transition-all duration-300`}>
+                                        <FontAwesomeIcon icon={faSortNumericUp} className="w-4 h-4 mr-2 group-hover/item:text-white" />
+                                        <span className="font-semibold group-hover/item:text-white">
+                                            Unggahan Terbaru
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        onClick={(e) => {
+                                            setSortBy('created_at');
+                                            setSortOrder('asc');
+                                            setDropdownSort(false);
+                                        }}
+                                        className={`${sortBy == 'created_at' && sortOrder == 'asc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 cursor-pointer transition-all duration-300`}>
+                                        <FontAwesomeIcon icon={faSortNumericDown} className="w-4 h-4 mr-2 group-hover/item:text-white" />
+                                        <span className="font-semibold group-hover/item:text-white">
+                                            Unggahan Terlama
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        {/* sort & order end */}
                     </div>
-                    {/* Navigation End */}
 
                 </div >
                 {/* NavBar Start */}
@@ -1348,13 +1468,13 @@ const Main = () => {
                                                         <Tippy content="Klik untuk menyalin tautan" delay={300}>
                                                             <div
                                                                 onClick={() => {
-                                                                    // navigator.clipboard.writeText(ClientDomain() + '/sharer?_id=' + item?.slug);
-                                                                    // showAlert('success', 'Berhasil', 'Tautan Berhasil Disalin');
-                                                                    goShare(item);
+                                                                    navigator.clipboard.writeText(ClientDomain() + '/sharer?_id=' + item?.slug);
+                                                                    showAlert('success', 'Berhasil', 'Tautan Berhasil Disalin');
+                                                                    // goShare(item);
                                                                 }}
                                                                 className="flex items-center gap-x-1 cursor-pointer">
                                                                 <FontAwesomeIcon icon={faShareAlt} className="w-3 h-3 text-green-500" />
-                                                                <div className="text-xs text-green-500">
+                                                                <div className="text-xs text-green-500 hidden lg:block lg:opacity-0 group-hover/item:opacity-100 transition-all duration-300">
                                                                     Salin Tautan
                                                                 </div>
                                                             </div>
@@ -1373,11 +1493,6 @@ const Main = () => {
                                             </div>
                                             <div className="text-slate-400 text-xs flex items-center mt-1">
                                                 <div className="text-xs text-slate-400 mr-2">
-                                                    {/* {item.type == 'file' && (
-                                                        <span className="mr-2">
-                                                            {item.full_mime}
-                                                        </span>
-                                                    )} */}
                                                     {item.type === 'file' && (
                                                         <span>
                                                             {item.size}
@@ -1504,12 +1619,16 @@ const Main = () => {
                                         )}
                                     </div>
 
+                                    {/* logo bg per file start */}
                                     <div className="z-0">
                                         <img
-                                            className={`absolute top-0 right-[200px] w-auto h-full group-hover/item:blur-sm opacity-20 group-hover/item:opacity-100 ${pickedItem?.slug == item?.slug ? '!blur-sm !opacity-100' : ''}`}
+                                            className={`absolute top-0 right-0 lg:right-[200px] w-auto h-full group-hover/item:blur-sm opacity-20 group-hover/item:opacity-100 ${pickedItem?.slug == item?.slug ? '!blur-sm !opacity-100' : ''}`}
                                             src="/logo.png" />
                                     </div>
+                                    {/* logo bg per file end */}
 
+
+                                    {/* download animation start */}
                                     {isOnDownload && onDownloadId == item.slug && (
                                         <>
                                             <div className="absolute top-0 left-0 w-full h-full bg-sky-300 rounded z-20">
@@ -1524,6 +1643,7 @@ const Main = () => {
                                             </div>
                                         </>
                                     )}
+                                    {/* download animation end */}
                                 </div>
 
                             ))}
@@ -2321,7 +2441,7 @@ const Main = () => {
 
                             <div className={`${hideQueue ? 'flex items-center justify-center' : 'hidden'}`}>
                                 <div className="text-xs">
-                                    {queueFilesCount ?? 0} Berkas
+                                    Berkas
                                 </div>
                                 <div className="relative w-6 h-6 animate-pulse flex items-center justify-center ml-1">
                                     <div className="w-3 h-3 border-l border-green-500 rounded-full animate-spin"></div>
