@@ -2214,6 +2214,14 @@ const Main = () => {
                     <Dialog
                         as="div"
                         open={modalPreview}
+                        onKeyUp={(e) => {
+                            if (e.key === 'Escape') {
+                                closeModalMoveItems();
+                            }
+                            if (e.key === 'Backspace') {
+                                closeModalMoveItems();
+                            }
+                        }}
                         onClose={() => closeModalPreview()}>
                         <Transition.Child
                             as={Fragment}
