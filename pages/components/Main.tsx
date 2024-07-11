@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Dialog, Transition } from '@headlessui/react';
-import { faCalendarAlt, faCaretSquareLeft, faCheckSquare, faEdit, faEye, faFile, faFileArchive, faFileAudio, faFileExcel, faFilePdf, faFilePowerpoint, faFileWord, faFileZipper, faFolder, faFolderBlank, faFolderClosed, faFolderOpen, faImage, faPlusSquare, faSave, faShareSquare, faTrashAlt, faWindowMaximize, faWindowMinimize } from "@fortawesome/free-regular-svg-icons";
-import { faArrowsAlt, faCaretRight, faCheck, faChevronLeft, faChevronRight, faCloudDownloadAlt, faCloudUploadAlt, faFolderPlus, faImagePortrait, faLink, faLock, faMinimize, faPen, faSearch, faShareAlt, faSortAlphaDown, faSortAlphaUp, faSortAmountDownAlt, faSortNumericDown, faSortNumericUp, faTimes, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faCalendarAlt, faCaretSquareLeft, faCheckSquare, faEdit, faEye, faFile, faFileArchive, faFileAudio, faFileExcel, faFilePdf, faFilePowerpoint, faFileWord, faFileZipper, faFolder, faFolderBlank, faFolderClosed, faFolderOpen, faHdd, faImage, faPlusSquare, faSave, faShareSquare, faTrashAlt, faTrashCan, faWindowMaximize, faWindowMinimize } from "@fortawesome/free-regular-svg-icons";
+import { faArrowsAlt, faCaretRight, faCheck, faChevronLeft, faChevronRight, faCloudDownloadAlt, faCloudUploadAlt, faFolderPlus, faImagePortrait, faLink, faLock, faMinimize, faPen, faSearch, faShare, faShareAlt, faSortAlphaDown, faSortAlphaUp, faSortAmountDownAlt, faSortNumericDown, faSortNumericUp, faTimes, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Tippy from "@tippyjs/react";
 import 'tippy.js/dist/tippy.css';
@@ -21,6 +21,7 @@ import { getUploadQueue } from '@/pages/api/main';
 import Swal from 'sweetalert2';
 import Head from "next/head";
 import axios from "axios";
+import Link from "next/link";
 
 const showSweetAlert = async (icon: any, title: any, text: any, confirmButtonText: any) => {
     Swal.fire({
@@ -228,11 +229,14 @@ const Main = () => {
         setModalPreview(false);
     }
 
-    const [showPanel, setShowPanel] = useState<boolean>(false);
+    const [showPanel, setShowPanel] = useState<boolean>(true);
 
     const [selectedItems, setSelectedItems] = useState<any>([]);
     const [onDragState, setOnDragState] = useState<boolean>(false);
     const [ExternalDrag, setExternalDrag] = useState<boolean>(true);
+
+    const [isInTrash, setIsInTrash] = useState<boolean>(false);
+    const [trashedItems, setTrashedItems] = useState<any>([]);
 
     const [datas, setDatas] = useState<any>([]);
     const [sortBy, setSortBy] = useState<any>('name');
@@ -286,6 +290,49 @@ const Main = () => {
             // setIsLoaded(false);
         });
     }
+
+    useEffect(() => {
+        if (isInTrash) {
+            getItemsTrashed();
+        }
+    }, [isInTrash]);
+
+    const getItemsTrashed = () => {
+        const res = axios.get(`${BaseUri()}/getItemsTrashed`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        }).then((res: any) => {
+            console.log(res.data)
+            if (res.data.status === 'success') {
+                setTrashedItems(res.data.data);
+            }
+            if (res.data.status === 'error') {
+                showSweetAlert('info', 'Peringatan', res?.data?.message, 'Tutup');
+            }
+        });
+    }
+
+    const __restore = (slug: any) => {
+        const res = axios.post(`${BaseUri()}/restore/${slug}`, {}, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        }).then((res: any) => {
+            if (res.data.status === 'success') {
+                getItemsTrashed();
+                showAlert('success', 'Berhasil', res.data.message);
+            }
+            if (res.data.status === 'error') {
+                showSweetAlert('info', 'Peringatan', res?.data?.message, 'Tutup');
+            }
+        });
+
+    }
+
+    // console.log(trashedItems)
 
     const [search, setSearch] = useState<any>(null);
     const [searchedItems, setSearchedItems] = useState<any>([]);
@@ -818,83 +865,89 @@ const Main = () => {
                 <div className="mt-8">
                     <div className="flex flex-wrap gap-y-4 sm:flex-nowrap items-center justify-between">
 
-                        <div className="flex items-center gap-x-2">
-                            {isPathLoaded == true ? (
-                                <div className="flex items-center gap-x-2">
+                        {isInTrash == false ? (
+                            <div className="flex items-center gap-x-2">
+                                {(isPathLoaded == true) ? (
+                                    <div className="flex items-center gap-x-2">
 
-                                    <div className="">
-                                        {selectedItems.length > 0 && (
-                                            <div>
-                                                {selectedItems.length} item terpilih
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <Tippy content="Pilih Folder / Berkas" delay={300}>
-                                        <div className={`${selectState ? 'bg-red-400 text-white' : 'bg-sky-400 text-sky-100'}  hover:bg-sky-600 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer`}
-                                            onClick={() => {
-                                                setSelectState(!selectState);
-                                                if (selectState) {
-                                                    setSelectedItems([]);
-                                                }
-                                            }}
-                                        >
-                                            <FontAwesomeIcon icon={faCheckSquare} className="w-4 h-4" />
-                                            {selectState ? 'BATAL PILIH' : 'PILIH'}
+                                        <div className="">
+                                            {selectedItems.length > 0 && (
+                                                <div>
+                                                    {selectedItems.length} item terpilih
+                                                </div>
+                                            )}
                                         </div>
-                                    </Tippy>
 
-                                    {selectState && (
-                                        <>
-                                            <Tippy content="Pindahkan Folder / Berkas" delay={300}>
-                                                <div
-                                                    onClick={(e) => {
-                                                        if (selectState) {
-                                                            if (selectedItems?.length > 0) {
-                                                                openModalMoveItems();
+                                        <Tippy content="Pilih Folder / Berkas" delay={300}>
+                                            <div className={`${selectState ? 'bg-red-400 text-white' : 'bg-sky-400 text-sky-100'}  hover:bg-sky-600 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer`}
+                                                onClick={() => {
+                                                    setSelectState(!selectState);
+                                                    if (selectState) {
+                                                        setSelectedItems([]);
+                                                    }
+                                                }}
+                                            >
+                                                <FontAwesomeIcon icon={faCheckSquare} className="w-4 h-4" />
+                                                {selectState ? 'BATAL PILIH' : 'PILIH'}
+                                            </div>
+                                        </Tippy>
+
+                                        {selectState && (
+                                            <>
+                                                <Tippy content="Pindahkan Folder / Berkas" delay={300}>
+                                                    <div
+                                                        onClick={(e) => {
+                                                            if (selectState) {
+                                                                if (selectedItems?.length > 0) {
+                                                                    openModalMoveItems();
+                                                                }
                                                             }
-                                                        }
-                                                    }}
-                                                    className="bg-orange-200 text-orange-600 hover:bg-orange-400 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer">
-                                                    <FontAwesomeIcon icon={faArrowsAlt} className="w-4 h-4" />
-                                                </div>
-                                            </Tippy>
+                                                        }}
+                                                        className="bg-orange-200 text-orange-600 hover:bg-orange-400 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer">
+                                                        <FontAwesomeIcon icon={faArrowsAlt} className="w-4 h-4" />
+                                                    </div>
+                                                </Tippy>
 
-                                            <Tippy content="Hapus Folder / Berkas" delay={300}>
-                                                <div
-                                                    onClick={(e) => {
-                                                        if (selectState) {
-                                                            if (selectedItems?.length > 0) {
-                                                                __confirmDeleteMass()
+                                                <Tippy content="Hapus Folder / Berkas" delay={300}>
+                                                    <div
+                                                        onClick={(e) => {
+                                                            if (selectState) {
+                                                                if (selectedItems?.length > 0) {
+                                                                    __confirmDeleteMass()
+                                                                }
                                                             }
-                                                        }
-                                                    }}
-                                                    className="bg-red-200 text-red-600 hover:bg-red-400 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer">
-                                                    <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4" />
-                                                </div>
-                                            </Tippy>
-                                        </>
-                                    )}
+                                                        }}
+                                                        className="bg-red-200 text-red-600 hover:bg-red-400 hover:text-white transition-all duration-200 px-3 py-2 rounded flex items-center justify-center gap-1 cursor-pointer">
+                                                        <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4" />
+                                                    </div>
+                                                </Tippy>
+                                            </>
+                                        )}
 
+                                    </div>
+                                ) : (
+                                    <div className="h-9 w-[100px] bg-sky-200 rounded animate-pulse"></div>
+                                )}
+
+
+                                <div
+                                    onClick={(e) => {
+                                        openModalFolder();
+                                    }}
+                                    className="px-4 py-2 flex items-center group/item bg-green-400 hover:bg-green-600 rounded cursor-pointer transition-all duration-300">
+                                    <FontAwesomeIcon icon={faFolderPlus} className="w-4 h-4 mr-2 text-white" />
+                                    <span className="font-semibold text-white">
+                                        FOLDER
+                                    </span>
                                 </div>
-                            ) : (
-                                <div className="h-9 w-[100px] bg-sky-200 rounded animate-pulse"></div>
-                            )}
-
-
-                            <div
-                                onClick={(e) => {
-                                    openModalFolder();
-                                }}
-                                className="px-4 py-2 flex items-center group/item bg-green-400 hover:bg-green-600 rounded cursor-pointer transition-all duration-300">
-                                <FontAwesomeIcon icon={faFolderPlus} className="w-4 h-4 mr-2 text-white" />
-                                <span className="font-semibold text-white">
-                                    FOLDER
-                                </span>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="text-xl font-bold">
 
-                        {isPathLoaded == true ? (
+                            </div>
+                        )}
+
+                        {(isPathLoaded == true && isInTrash == false) ? (
                             <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2">
                                 <div className="relative">
                                     <form className="relative"
@@ -985,19 +1038,818 @@ const Main = () => {
                                         </div>
                                     )}
                                 </div>
+                            </div>
+                        ) : (
+                            <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2">
+                                <div className="h-9 w-[200px] bg-slate-200 rounded animate-pulse"></div>
+                            </div>
+                        )}
 
-                                {onUpload == false && (
-                                    <div ref={dropdownNewRef} className="flex items-center gap-x-2">
-                                        <div className="relative"
+                    </div>
+
+                    {isInTrash == false ? (
+                        <div className="grid grid-cols-10 mt-3 pb-3">
+                            {/* Navigation Start */}
+                            <div className="col-span-10 md:col-span-7 flex items-center gap-2 justify-start max-w-full overflow-auto select-none">
+
+                                {isPathLoaded == true && (
+                                    <>
+                                        <div
+                                            onClick={() => {
+                                                if (selectState == false) {
+                                                    router.query._id = '0';
+                                                    router.push(router);
+                                                }
+                                            }}
+                                            className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
+                                            <FontAwesomeIcon icon={faFolder} className="w-4 h-4 mr-1" />
+                                            <span className="whitespace-nowrap text-lg">
+                                                Root
+                                            </span>
+                                        </div>
+
+                                        {paths?.map((path: any, index: number) => (
+                                            <div
+                                                key={'path-' + index}
+                                                onClick={() => {
+                                                    if (selectState == false) {
+                                                        router.query._id = path.slug;
+                                                        router.push(router);
+                                                    }
+                                                }}
+                                                className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
+                                                <FontAwesomeIcon icon={faCaretRight} className="w-4 h-4 text-gray-400 mr-1" />
+                                                <FontAwesomeIcon icon={faFolder} className="w-4 h-4 mr-1" />
+                                                <span className="whitespace-nowrap text-lg">
+                                                    {path.name}
+                                                </span>
+                                            </div>
+                                        ))}
+
+                                        {currentPath && (
+                                            <div
+                                                className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
+                                                <FontAwesomeIcon icon={faCaretRight} className="w-4 h-4 text-gray-400 mr-1" />
+                                                <FontAwesomeIcon icon={faFolderOpen} className="w-4 h-4 mr-1" />
+                                                <span className="whitespace-nowrap text-lg">
+                                                    {currentPath.name}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+
+                                {isPathLoaded == false && (
+                                    <div className="h-4 w-[300px] bg-slate-200 rounded animate-pulse"></div>
+                                )}
+
+                            </div>
+                            {/* Navigation End */}
+
+                            {/* sort & order start */}
+                            <div className="col-span-10 md:col-span-1 flex items-center justify-end">
+                                {/* dropdown menu */}
+                                <div className="relative"
+                                    onClick={() => {
+                                        setDropdownSort(!dropdownSort);
+                                    }}>
+                                    <div className={`${dropdownSort ? 'text-sky-500' : ''} hover:text-sky-500 transition-all duration-300 rounded flex items-center justify-center gap-1 cursor-pointer font-semibold`}>
+                                        {sortBy == 'name' && sortOrder == 'asc' && (
+                                            <>
+                                                <FontAwesomeIcon icon={faSortAlphaDown} className="w-3 h-3" />
+                                                Nama (A-Z)
+                                            </>
+                                        )}
+
+                                        {sortBy == 'name' && sortOrder == 'desc' && (
+                                            <>
+                                                <FontAwesomeIcon icon={faSortAlphaUp} className="w-3 h-3" />
+                                                Nama (Z-A)
+                                            </>
+                                        )}
+
+                                        {sortBy == 'created_at' && sortOrder == 'asc' && (
+                                            <>
+                                                <FontAwesomeIcon icon={faSortNumericDown} className="w-3 h-3" />
+                                                Unggahan Terlama
+                                            </>
+                                        )}
+
+                                        {sortBy == 'created_at' && sortOrder == 'desc' && (
+                                            <>
+                                                <FontAwesomeIcon icon={faSortNumericUp} className="w-3 h-3" />
+                                                Unggahan Terbaru
+                                            </>
+                                        )}
+
+                                    </div>
+
+                                    <div
+                                        ref={dropdownSortRef}
+                                        className={`${dropdownSort ? 'block' : 'hidden'} absolute rounded bg-white shadow border min-w-[200px] right-0 mt-2 z-20`}>
+
+                                        <div
+                                            onClick={(e) => {
+                                                setSortBy('name');
+                                                setSortOrder('asc');
+                                                setDropdownSort(false);
+                                            }}
+                                            className={`${sortBy == 'name' && sortOrder == 'asc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 rounded-t cursor-pointer transition-all duration-300`}>
+                                            <FontAwesomeIcon icon={faSortAlphaDown} className="w-4 h-4 mr-2 group-hover/item:text-white" />
+                                            <span className="font-semibold group-hover/item:text-white">
+                                                Nama (A-Z)
+                                            </span>
+                                        </div>
+
+
+                                        <div
+                                            onClick={(e) => {
+                                                setSortBy('name');
+                                                setSortOrder('desc');
+                                                setDropdownSort(false);
+                                            }}
+                                            className={`${sortBy == 'name' && sortOrder == 'desc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 cursor-pointer transition-all duration-300`}>
+                                            <FontAwesomeIcon icon={faSortAlphaUp} className="w-4 h-4 mr-2 group-hover/item:text-white" />
+                                            <span className="font-semibold group-hover/item:text-white">
+                                                Nama (Z-A)
+                                            </span>
+                                        </div>
+
+                                        <div
+                                            onClick={(e) => {
+                                                setSortBy('created_at');
+                                                setSortOrder('desc');
+                                                setDropdownSort(false);
+                                            }}
+                                            className={`${sortBy == 'created_at' && sortOrder == 'desc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 rounded-b cursor-pointer transition-all duration-300`}>
+                                            <FontAwesomeIcon icon={faSortNumericUp} className="w-4 h-4 mr-2 group-hover/item:text-white" />
+                                            <span className="font-semibold group-hover/item:text-white">
+                                                Unggahan Terbaru
+                                            </span>
+                                        </div>
+
+                                        <div
+                                            onClick={(e) => {
+                                                setSortBy('created_at');
+                                                setSortOrder('asc');
+                                                setDropdownSort(false);
+                                            }}
+                                            className={`${sortBy == 'created_at' && sortOrder == 'asc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 cursor-pointer transition-all duration-300`}>
+                                            <FontAwesomeIcon icon={faSortNumericDown} className="w-4 h-4 mr-2 group-hover/item:text-white" />
+                                            <span className="font-semibold group-hover/item:text-white">
+                                                Unggahan Terlama
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            {/* sort & order end */}
+                        </div>
+                    ) : (
+                        <div className="h-[55px] text-2xl font-bold">
+                            Daftar Berkas Terhapus
+                        </div>
+                    )}
+                </div >
+                {/* NavBar Start */}
+
+
+                {/* Main Start */}
+                <div className="grid grid-cols-10 gap-4">
+
+                    <div className={`col-span-10 ${showPanel ? 'md:col-span-8' : 'md:col-span-9'} mt-0 relative overflow-x-auto max-w-full h-[calc(100vh-230px)]`}>
+
+                        {isInTrash == false && (
+                            <>
+                                {isLoaded && (
+                                    <div className="w-full h-full flex justify-center items-center rounded shadow-lg bg-white">
+                                        <div className="flex items-center justify-center flex-col gap-y-3">
+                                            <div className="w-24 h-24 p-4 rounded-full bg-sky-300 animate-bounce shadow-2xl">
+                                                <img src="/favicon.png" alt="Loading" className="" />
+                                            </div>
+                                            <div className="text-3xl">
+                                                {isLoadingText}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="space-y-3">
+                                    {ID !== '0' && (
+                                        <div
+                                            onClick={() => {
+                                                if (selectState == false) {
+                                                    if (currentPath) {
+                                                        pickFolder(currentPath?.parent_slug?.toString() ?? '0');
+                                                    }
+                                                }
+                                            }}
+                                            onDragOver={
+                                                (e) => {
+                                                    e.preventDefault();
+                                                    setOnDragState(true);
+                                                    setDropTargetId(currentPath?.parent_slug ? currentPath?.parent_slug : 0);
+                                                }
+                                            }
+                                            className="px-5 py-6 shadow bg-slate-100 hover:bg-sky-100 rounded flex flex-col xl:flex-row xl:items-center justify-between gap-y-3 group/item cursor-pointer select-none">
+                                            <div className="flex items-center group-hover/item:text-sky-500">
+                                                <FontAwesomeIcon icon={faCaretSquareLeft} className="w-4 h-4 mr-2" />
+                                                <div className="font-semibold">
+                                                    Kembali
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {datas?.map((item: any, index: number) => (
+
+                                        <div key={`item-${item?.id}`}
+                                            className={`${onDragState ? '' : ''} px-5 shadow bg-white hover:bg-slate-100 rounded flex flex-col xl:flex-row xl:items-center justify-between gap-y-3 group/item cursor-pointer select-none relative border-2 border-transparent hover:border-sky-400 hover:shadow-md hover:shadow-sky-600 transition-all duration-300 ${pickedItem?.slug == item?.slug ? '!bg-slate-100 border-sky-400 shadow-md shadow-sky-600' : ''} ${selectedItems.includes(item.slug) ? '!bg-slate-100 border-sky-400 shadow-md shadow-sky-600' : ''}`}
+                                            id={`listitem-${item.slug}`}
+                                            onDragOver={
+                                                (e) => {
+                                                    e.preventDefault();
+                                                    setOnDragState(true);
+                                                    // setExternalDrag(false);
+                                                    setDropTargetId(item.slug);
+                                                }
+                                            }
+                                            onDragStartCapture={(e) => {
+                                                setExternalDrag(false);
+                                            }}
+                                            onDragLeave={
+                                                () => {
+                                                    setOnDragState(false);
+                                                }
+                                            }
+                                            onDragEnd={
+                                                (e: any) => {
+                                                    setOnDragState(false);
+                                                    setExternalDrag(true);
+                                                    if (selectState) {
+                                                        __moveMassTo(dropTargetId);
+                                                    }
+                                                    else if (selectState == false) {
+                                                        __moveTo(item.slug, dropTargetId);
+                                                    }
+                                                }
+                                            }
+
+                                            // on right click
+                                            onContextMenu={(e) => {
+                                                e.preventDefault();
+                                                // show context menu
+                                                if (isOnDownload === false) {
+                                                    setContextMenu({
+                                                        top: e.clientY,
+                                                        left: e.clientX,
+                                                        show: true,
+                                                        item: item,
+                                                    });
+                                                }
+                                            }}
+
+                                            draggable={true}>
+
+                                            {(contextMenu?.show && contextMenu?.item?.id === item?.id) && (
+                                                <div
+                                                    ref={contextMenuRef}
+
+                                                    className={`bg-white absolute z-20 bottom-[10px] shadow rounded`}
+                                                    style={{
+                                                        left: (contextMenu?.left - 30) + 'px',
+                                                    }}>
+                                                    <div className="space-y-2">
+
+                                                        <div
+                                                            onClick={() => {
+                                                                __confirmDeleteSingle(contextMenu?.item?.slug);
+                                                            }}
+                                                            className="px-6 py-2 hover:bg-red-100 cursor-pointer flex items-center">
+                                                            <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4 mr-2 text-red-600" />
+                                                            <span className="font-semibold text-red-600">
+                                                                Hapus
+                                                            </span>
+                                                        </div>
+
+                                                        <div
+                                                            onClick={() => {
+                                                                goShare(contextMenu?.item);
+                                                            }}
+                                                            className="px-6 py-2 hover:bg-green-100 cursor-pointer flex items-center">
+                                                            <FontAwesomeIcon icon={faShareSquare} className="w-4 h-4 mr-2 text-green-600" />
+                                                            <span className="font-semibold text-green-600">
+                                                                Bagikan
+                                                            </span>
+                                                        </div>
+
+                                                        {item?.type == 'file' && (
+                                                            <div
+                                                                onClick={() => {
+                                                                    __confirmDownload(contextMenu?.item);
+                                                                }}
+                                                                className="px-6 py-2 hover:bg-sky-100 cursor-pointer flex items-center">
+                                                                <FontAwesomeIcon icon={faCloudDownloadAlt} className="w-4 h-4 mr-2 text-sky-600" />
+                                                                <span className="font-semibold text-sky-600">
+                                                                    Unduh
+                                                                </span>
+                                                            </div>
+                                                        )}
+
+                                                        <div
+                                                            onClick={() => {
+                                                                goEdit(contextMenu?.item);
+                                                            }}
+                                                            className="px-6 py-2 hover:bg-sky-100 cursor-pointer flex items-center">
+                                                            <div className="w-4 h-4 mr-2 flex items-center justify-center">
+                                                                <FontAwesomeIcon icon={faPen} className="w-3 h-3 text-sky-600" />
+                                                            </div>
+                                                            <span className="font-semibold text-sky-600">
+                                                                Sunting
+                                                            </span>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {selectState && (
+                                                <div className="flex-none w-8 z-10">
+                                                    <input
+                                                        type="checkbox"
+                                                        value={item.slug}
+                                                        checked={selectedItems.includes(item.slug)}
+                                                        onChange={() => {
+                                                            if (selectedItems.includes(item.slug)) {
+                                                                setSelectedItems(selectedItems.filter((i: number) => i !== item.slug));
+                                                            } else {
+                                                                setSelectedItems([...selectedItems, item.slug]);
+                                                            }
+                                                        }}
+                                                        className="form-checkbox" />
+                                                </div>
+                                            )}
+
+                                            <div className="grow flex items-center py-6 z-10"
+                                                onClick={() => {
+                                                    if (selectState) {
+                                                        if (selectedItems.includes(item.slug)) {
+                                                            setSelectedItems(selectedItems.filter((i: number) => i !== item.slug));
+                                                        } else {
+                                                            setSelectedItems([...selectedItems, item.slug]);
+                                                        }
+                                                    }
+                                                    else {
+                                                        setPickedItem(item);
+                                                    }
+                                                }}
+                                                onDoubleClick={() => {
+                                                    if (selectState == false) {
+                                                        if (item.type == 'folder') {
+                                                            pickFolder(item.slug);
+                                                        }
+                                                        if (item.type == 'file') {
+                                                            openFile(item);
+                                                        }
+                                                    }
+                                                }}>
+                                                <div className="mr-3">
+                                                    {item.type == 'folder' && (
+                                                        <>
+                                                            <FontAwesomeIcon icon={faFolder} className="w-6 h-6 text-blue-800 block group-hover/item:hidden" />
+                                                            <FontAwesomeIcon icon={faFolderOpen} className="w-6 h-6 text-blue-800 hidden group-hover/item:block" />
+                                                        </>
+                                                    )}
+                                                    {item.type == 'file' && (
+                                                        <div className="w-6 h-6">
+                                                            {item.extension == 'pdf' && (
+                                                                <FontAwesomeIcon icon={faFilePdf} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                            )}
+
+                                                            {['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'z'].includes(item.extension) && (
+                                                                <FontAwesomeIcon icon={faFileZipper} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                            )}
+
+                                                            {['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'tiff', 'ico', 'psd', 'ai', 'indd', 'raw', 'webp', 'svg'].includes(item.extension) && (
+                                                                <FontAwesomeIcon icon={faImage} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                            )}
+
+                                                            {['mp3', 'wav', 'ogg', 'wma', 'm4a', 'flac', 'aac'].includes(item.extension) && (
+                                                                <FontAwesomeIcon icon={faFileAudio} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                            )}
+
+                                                            {['mp4', 'mkv', 'webm', 'flv', 'vob', 'ogv', 'ogg', 'drc', 'gifv', 'mng', 'avi', 'mts', 'm2ts', 'mov', 'qt', 'wmv', 'yuv', 'rm', 'rmvb', 'asf', 'amv', 'mpg', 'mp2', 'mpeg', 'mpe', 'mpv', 'm4p', 'm4v', 'svi', '3gp', '3g2', 'mxf', 'roq', 'nsv', 'flv', 'f4v', 'f4p', 'f4a', 'f4b'].includes(item.extension) && (
+                                                                <FontAwesomeIcon icon={faFileAudio} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                            )}
+
+                                                            {(item.extension == 'doc'
+                                                                || item.extension == 'docx') && (
+                                                                    <FontAwesomeIcon icon={faFileWord} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                                )}
+
+                                                            {(item.extension == 'xls'
+                                                                || item.extension == 'xlsx'
+                                                                || item.extension == 'csv') && (
+                                                                    <FontAwesomeIcon icon={faFileExcel} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                                )}
+
+                                                            {(item.extension == 'ppt'
+                                                                || item.extension == 'pptx') && (
+                                                                    <FontAwesomeIcon icon={faFilePowerpoint} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                                )}
+                                                            {['html', 'json', 'dmg', 'exe'].includes(item.extension) && (
+                                                                <FontAwesomeIcon icon={faFile} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                            )}
+
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="line-clamp-2 font-semibold">
+                                                            {item.type == 'folder' && (
+                                                                <>
+                                                                    {item.name}
+                                                                </>
+                                                            )}
+                                                            {item.type == 'file' && (
+                                                                <>
+                                                                    {`${item.name}.${item.extension}`}
+                                                                </>
+                                                            )}
+
+                                                        </div>
+                                                        <div className="">
+                                                            {item.publicity.status == 'public' && (
+                                                                <Tippy content="Klik untuk menyalin tautan" delay={300}>
+                                                                    <div
+                                                                        onClick={() => {
+                                                                            navigator.clipboard.writeText(ClientDomain() + '/sharer?_id=' + item?.slug);
+                                                                            showAlert('success', 'Berhasil', 'Tautan Berhasil Disalin');
+                                                                            // goShare(item);
+                                                                        }}
+                                                                        className="flex items-center gap-x-1 cursor-pointer">
+                                                                        <FontAwesomeIcon icon={faShareAlt} className="w-3 h-3 text-green-500" />
+                                                                        <div className="text-xs text-green-500 hidden lg:block lg:opacity-0 group-hover/item:opacity-100 transition-all duration-300">
+                                                                            Salin Tautan
+                                                                        </div>
+                                                                    </div>
+                                                                </Tippy>
+                                                            )}
+                                                            {item.publicity.status == 'private' && (
+                                                                <div
+                                                                    onClick={() => {
+                                                                        goShare(item);
+                                                                    }}
+                                                                    className="flex items-center gap-x-1 cursor-pointer">
+                                                                    <FontAwesomeIcon icon={faLock} className="w-3 h-3 text-blue-500" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-slate-400 text-xs flex items-center mt-1">
+                                                        <div className="text-xs text-slate-400 mr-2">
+                                                            {item.type === 'file' && (
+                                                                <span>
+                                                                    {item.size}
+                                                                </span>
+                                                            )}
+                                                            {item.type === 'folder' && (
+                                                                <span>{item.childs} berkas</span>
+                                                            )}
+                                                        </div>
+                                                        <FontAwesomeIcon icon={faCalendarAlt} className="w-2.5 h-2.5 mr-1" />
+                                                        <span>
+                                                            {new Date(item.created_at).toLocaleString('id-ID', {
+                                                                day: 'numeric',
+                                                                month: 'short',
+                                                                year: 'numeric',
+                                                                hour: 'numeric',
+                                                                minute: 'numeric',
+                                                            })}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center justify-between xl:justify-normal gap-x-4 w-full xl:w-auto z-10">
+                                                {selectState == false && (
+                                                    <div className="flex items-center gap-x-2 transition-all duration-200 xl:opacity-0 xl:group-hover/item:opacity-100">
+
+                                                        {item.type == 'file' && (
+                                                            <Tippy content={
+                                                                <div className="p-1 flex flex-col gap-2">
+
+                                                                    <div
+                                                                        onClick={(e) => {
+                                                                            openFile(item, 'preview');
+                                                                        }}
+                                                                        className="flex items-center text-sm cursor-pointer">
+                                                                        <FontAwesomeIcon icon={faEye} className="w-3 h-3 mr-2" />
+                                                                        <span>
+                                                                            Preview
+                                                                        </span>
+                                                                    </div>
+
+                                                                    {['xls', 'xlsx'].includes(item.extension) && (
+                                                                        <div
+                                                                            onClick={(e) => {
+                                                                                openFile(item, 'spreadsheet');
+                                                                            }}
+                                                                            className="flex items-center text-sm cursor-pointer">
+                                                                            <FontAwesomeIcon icon={faFileExcel} className="w-3 h-3 mr-2" />
+                                                                            <span>
+                                                                                Spreadsheet
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {['doc', 'docx'].includes(item.extension) && (
+                                                                        <div
+                                                                            onClick={(e) => {
+                                                                                openFile(item, 'doc');
+                                                                            }}
+                                                                            className="flex items-center text-sm cursor-pointer">
+                                                                            <FontAwesomeIcon icon={faFileWord} className="w-3 h-3 mr-2" />
+                                                                            <span>
+                                                                                Google Doc
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+
+                                                                </div>
+                                                            }
+                                                                allowHTML={true}
+                                                                interactive={true}
+                                                                delay={300}>
+                                                                <div
+                                                                    className="rounded-full hover:bg-slate-200 p-1.5 cursor-pointer">
+                                                                    <FontAwesomeIcon icon={faEye} className="w-4 h-4 text-slate-400 hover:text-slate-500" />
+                                                                </div>
+                                                            </Tippy>
+                                                        )}
+
+                                                        <Tippy content="Bagikan" delay={300}>
+                                                            <div
+                                                                onClick={() => {
+                                                                    goShare(item);
+                                                                }}
+                                                                className="rounded-full hover:bg-green-200 p-1.5 cursor-pointer">
+                                                                <FontAwesomeIcon icon={faShareSquare} className="w-4 h-4 text-green-400 hover:text-green-500" />
+                                                            </div>
+                                                        </Tippy>
+
+                                                        {item.type == 'file' && (
+                                                            <Tippy content="Unduh" delay={300}>
+                                                                <div
+                                                                    onClick={() => {
+                                                                        __confirmDownload(item);
+                                                                    }}
+                                                                    className="rounded-full hover:bg-sky-200 p-1.5 cursor-pointer">
+                                                                    <FontAwesomeIcon icon={faCloudDownloadAlt} className="w-4 h-4 text-sky-400 hover:text-sky-500" />
+                                                                </div>
+                                                            </Tippy>
+                                                        )}
+
+                                                        <Tippy content="Sunting" delay={300}>
+                                                            <div
+                                                                onClick={() => {
+                                                                    goEdit(item);
+                                                                }}
+                                                                className="rounded-full hover:bg-blue-200 p-2 cursor-pointer">
+                                                                <FontAwesomeIcon icon={faPen} className="w-3 h-3 text-blue-400 hover:text-blue-500" />
+                                                            </div>
+                                                        </Tippy>
+
+                                                        <Tippy content="Hapus" delay={300}>
+                                                            <div
+                                                                onClick={(e) => {
+                                                                    __confirmDeleteSingle(item.slug);
+                                                                }}
+                                                                className="rounded-full hover:bg-red-200 p-2 cursor-pointer">
+                                                                <FontAwesomeIcon icon={faTrashAlt} className="w-3 h-3 text-red-400 hover:text-red-500" />
+                                                            </div>
+                                                        </Tippy>
+
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* logo bg per file start */}
+                                            <div className="z-0">
+                                                <img
+                                                    className={`absolute top-0 right-0 lg:right-[200px] w-auto h-full group-hover/item:blur-sm opacity-20 group-hover/item:opacity-100 ${pickedItem?.slug == item?.slug ? '!blur-sm !opacity-100' : ''}`}
+                                                    src="/logo.png" />
+                                            </div>
+                                            {/* logo bg per file end */}
+
+
+                                            {/* download animation start */}
+                                            {isOnDownload && onDownloadId == item.slug && (
+                                                <>
+                                                    <div className="absolute top-0 left-0 w-full h-full bg-sky-300 rounded z-20">
+                                                        <div className="w-full h-full flex items-center justify-center">
+                                                            <div className="relative z-20 text-2xl font-bold text-sky-300 tracking-[20px]">
+                                                                SEDANG MENGUNDUH
+                                                            </div>
+                                                            <div className="absolute top-0 left-0 flex items-center w-full h-full animate-marquee z-10">
+                                                                <div className="w-80 h-full bg-white/50 -skew-x-12"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
+                                            {/* download animation end */}
+                                        </div>
+
+                                    ))}
+
+                                </div>
+                            </>
+                        )}
+
+                        {isInTrash && (
+                            <div className="space-y-3">
+                                {trashedItems?.map((item: any, index: number) => (
+
+                                    <div key={`trashed-item-${index}`}
+                                        className="px-5 shadow bg-white hover:bg-slate-100 rounded flex flex-col xl:flex-row xl:items-center justify-between gap-y-3 group/item cursor-pointer select-none relative border-2 border-transparent hover:border-sky-400 hover:shadow-md hover:shadow-sky-600 transition-all duration-300"
+                                        id={`listitem-${item.slug}`}>
+
+                                        <div className="grow flex items-center py-6 z-10">
+                                            <div className="mr-3">
+                                                {item.type == 'folder' && (
+                                                    <>
+                                                        <FontAwesomeIcon icon={faFolder} className="w-6 h-6 text-blue-800 block group-hover/item:hidden" />
+                                                        <FontAwesomeIcon icon={faFolderOpen} className="w-6 h-6 text-blue-800 hidden group-hover/item:block" />
+                                                    </>
+                                                )}
+                                                {item.type == 'file' && (
+                                                    <div className="w-6 h-6">
+                                                        {item.extension == 'pdf' && (
+                                                            <FontAwesomeIcon icon={faFilePdf} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                        )}
+
+                                                        {['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'z'].includes(item.extension) && (
+                                                            <FontAwesomeIcon icon={faFileZipper} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                        )}
+
+                                                        {['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'tiff', 'ico', 'psd', 'ai', 'indd', 'raw', 'webp', 'svg'].includes(item.extension) && (
+                                                            <FontAwesomeIcon icon={faImage} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                        )}
+
+                                                        {['mp3', 'wav', 'ogg', 'wma', 'm4a', 'flac', 'aac'].includes(item.extension) && (
+                                                            <FontAwesomeIcon icon={faFileAudio} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                        )}
+
+                                                        {['mp4', 'mkv', 'webm', 'flv', 'vob', 'ogv', 'ogg', 'drc', 'gifv', 'mng', 'avi', 'mts', 'm2ts', 'mov', 'qt', 'wmv', 'yuv', 'rm', 'rmvb', 'asf', 'amv', 'mpg', 'mp2', 'mpeg', 'mpe', 'mpv', 'm4p', 'm4v', 'svi', '3gp', '3g2', 'mxf', 'roq', 'nsv', 'flv', 'f4v', 'f4p', 'f4a', 'f4b'].includes(item.extension) && (
+                                                            <FontAwesomeIcon icon={faFileAudio} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                        )}
+
+                                                        {(item.extension == 'doc'
+                                                            || item.extension == 'docx') && (
+                                                                <FontAwesomeIcon icon={faFileWord} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                            )}
+
+                                                        {(item.extension == 'xls'
+                                                            || item.extension == 'xlsx'
+                                                            || item.extension == 'csv') && (
+                                                                <FontAwesomeIcon icon={faFileExcel} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12 " />
+                                                            )}
+
+                                                        {(item.extension == 'ppt'
+                                                            || item.extension == 'pptx') && (
+                                                                <FontAwesomeIcon icon={faFilePowerpoint} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                            )}
+                                                        {['html', 'json', 'dmg', 'exe'].includes(item.extension) && (
+                                                            <FontAwesomeIcon icon={faFile} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
+                                                        )}
+
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="line-clamp-2 font-semibold">
+                                                        {item.type == 'folder' && (
+                                                            <>
+                                                                {item.name}
+                                                            </>
+                                                        )}
+                                                        {item.type == 'file' && (
+                                                            <>
+                                                                {`${item.name}.${item.extension}`}
+                                                            </>
+                                                        )}
+
+                                                    </div>
+                                                    <div className="">
+                                                        {item.publicity.status == 'public' && (
+                                                            <Tippy content="Klik untuk menyalin tautan" delay={300}>
+                                                                <div
+                                                                    onClick={() => {
+                                                                        navigator.clipboard.writeText(ClientDomain() + '/sharer?_id=' + item?.slug);
+                                                                        showAlert('success', 'Berhasil', 'Tautan Berhasil Disalin');
+                                                                        // goShare(item);
+                                                                    }}
+                                                                    className="flex items-center gap-x-1 cursor-pointer">
+                                                                    <FontAwesomeIcon icon={faShareAlt} className="w-3 h-3 text-green-500" />
+                                                                    <div className="text-xs text-green-500 hidden lg:block lg:opacity-0 group-hover/item:opacity-100 transition-all duration-300">
+                                                                        Salin Tautan
+                                                                    </div>
+                                                                </div>
+                                                            </Tippy>
+                                                        )}
+                                                        {item.publicity.status == 'private' && (
+                                                            <div
+                                                                onClick={() => {
+                                                                    goShare(item);
+                                                                }}
+                                                                className="flex items-center gap-x-1 cursor-pointer">
+                                                                <FontAwesomeIcon icon={faLock} className="w-3 h-3 text-blue-500" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="text-slate-400 text-xs flex items-center mt-1">
+                                                    <div className="text-xs text-slate-400 mr-2">
+                                                        {item.type === 'file' && (
+                                                            <span>
+                                                                {item.size}
+                                                            </span>
+                                                        )}
+                                                        {item.type === 'folder' && (
+                                                            <span>{item.childs} berkas</span>
+                                                        )}
+                                                    </div>
+                                                    <FontAwesomeIcon icon={faCalendarAlt} className="w-2.5 h-2.5 mr-1" />
+                                                    <span>
+                                                        {new Date(item.created_at).toLocaleString('id-ID', {
+                                                            day: 'numeric',
+                                                            month: 'short',
+                                                            year: 'numeric',
+                                                            hour: 'numeric',
+                                                            minute: 'numeric',
+                                                        })}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between xl:justify-normal gap-x-4 w-full xl:w-auto z-10">
+                                            <div className="flex items-center gap-x-2 transition-all duration-200 xl:opacity-0 xl:group-hover/item:opacity-100">
+
+                                                <Tippy content="Kembalikan" delay={300}>
+                                                    <div
+                                                        onClick={(e) => {
+                                                            __restore(item.slug);
+                                                        }}
+                                                        className="rounded-full hover:bg-red-200 p-2 cursor-pointer">
+                                                        <FontAwesomeIcon icon={faShare} className="w-3 h-3 text-orange-400 hover:text-orange-500 -scale-x-100" />
+                                                    </div>
+                                                </Tippy>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                    </div>
+
+                    <div className={`col-span-10 ${showPanel ? 'md:col-span-2' : 'md:col-span-1'} py-4 px-7 bg-white rounded shadow-lg relative`}>
+                        <div className="flex items-center justify-between">
+                            <div className="font-semibold">
+                                {editItem?.name}
+                            </div>
+                            <div className="hidden">
+                                <FontAwesomeIcon icon={faTimes}
+                                    className="w-4 h-4 cursor-pointer hover:text-red-500 transition-all duration-200"
+                                    onClick={() => {
+                                        setShowPanel(!showPanel);
+                                    }} />
+                            </div>
+                        </div>
+
+                        <div className="">
+                            {(isPathLoaded && isInTrash == false) ? (
+                                <>
+                                    {onUpload == false && (
+                                        <div ref={dropdownNewRef} className="relative"
                                             onClick={() => {
                                                 setDropdownNew(!dropdownNew);
                                             }}>
-                                            <div className={`${dropdownNew ? 'bg-gradient-to-r from-blue-500 to-blue-300 text-white' : 'bg-sky-400 text-sky-100'} hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 hover:text-white shadow transition-all duration-300 px-5 py-2 rounded flex items-center justify-center gap-1 cursor-pointer font-semibold`}>
-                                                <FontAwesomeIcon icon={faPlusSquare} className="w-3 h-3" />
-                                                UNGGAH
+                                            <div className={`${dropdownNew ? 'bg-gradient-to-r from-blue-500 to-blue-300 text-white' : 'bg-sky-400 text-sky-100'} hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 hover:text-white shadow transition-all duration-500 px-5 py-3 rounded flex items-center justify-center gap-1 cursor-pointer tracking-widest font-bold w-full`}>
+                                                <FontAwesomeIcon icon={faPlusSquare} className="w-4 h-4 mr-1" />
+                                                TAMBAH
                                             </div>
 
-                                            <div className={`${dropdownNew ? 'block' : 'hidden'} absolute rounded bg-white shadow border min-w-[200px] right-0 mt-2 z-10`}>
+                                            <div className={`${dropdownNew ? 'block' : 'hidden'} absolute rounded bg-white shadow border min-w-[200px] inset-x-0 right-0 mt-2 z-10`}>
 
                                                 <div
                                                     onClick={(e) => {
@@ -1033,678 +1885,94 @@ const Main = () => {
 
                                             </div>
                                         </div>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2">
-                                <div className="h-9 w-[200px] bg-slate-200 rounded animate-pulse"></div>
-                                <div className="h-9 w-[120px] bg-sky-200 rounded animate-pulse"></div>
-                            </div>
-                        )}
-
-                    </div>
-
-                    {/* Capacity Bar Start */}
-                    {isPathLoaded == true ? (
-                        <div className="mt-2 hidden xl:block">
-                            {/* storageData */}
-                            <Tippy content={`Kapasitas Drive Anda Tersisa ${storageData?.rest ?? 0}`} delay={300}>
-                                <div className="relative bg-white border border-slate-300 h-4 w-full xl:w-[300px] rounded-full overflow-hidden cursor-pointer group">
-                                    <div className="bg-gradient-to-r from-sky-500 to-sky-800 animate-pulses h-full"
-                                        style={
-                                            {
-                                                width: `${storageData?.percent ?? 0}%`
-                                            }
-                                        }>
-                                    </div>
-                                    <div className="absolute left-1 top-0 z-10 h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                                        <div className="font-semibold text-[10px]">
-                                            {storageData?.used}
-                                        </div>
-                                    </div>
-                                    <div className="absolute right-1 top-0 z-10 h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                                        <div className="font-semibold text-[10px]">
-                                            {storageData?.total}
-                                        </div>
-                                    </div>
-                                </div>
-                            </Tippy>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="h-11 w-full bg-sky-200 rounded animate-pulse"></div>
+                            )}
                         </div>
-                    ) : (
-                        <div className="mt-2 h-4 w-[300px] bg-slate-200 rounded-xl animate-pulse"></div>
-                    )}
-                    {/* Capacity Bar End */}
 
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mt-3 pb-3">
-                        {/* Navigation Start */}
-                        <div className="flex items-center gap-2 justify-start max-w-full overflow-auto select-none">
+                        <hr className="my-3" />
 
-                            {isPathLoaded == true && (
+                        <div className="space-y-3 w-full md:max-h-[calc(100vh-350px)] relative overflow-y-auto">
+
+                            <div className="flex items-center gap-2 group/link">
+                                <div className="flex-none">
+                                    <FontAwesomeIcon icon={faHdd} className="w-3 h-3 text-blue-800" />
+                                </div>
+                                <div
+                                    onClick={(e) => {
+                                        setIsInTrash(false);
+                                    }}
+                                    className={`${!isInTrash ? 'font-bold text-blue-800' : 'font-semibold'} cursor-pointer group-hover/link:text-blue-800`}>
+                                    Drive Anda
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 group/link">
+                                <div className="flex-none">
+                                    <FontAwesomeIcon icon={faTrashCan} className="w-3 h-3 text-red-600" />
+                                </div>
+                                <div
+                                    onClick={(e) => {
+                                        setIsInTrash(true);
+                                    }}
+                                    className={`${isInTrash ? 'font-bold text-red-700' : 'font-semibold'} cursor-pointer text-red-600 group-hover/link:text-red-700`}>
+                                    Kotak Sampah
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            {/* Capacity Bar Start */}
+                            {isInTrash == false && (
                                 <>
-                                    <div
-                                        onClick={() => {
-                                            if (selectState == false) {
-                                                router.query._id = '0';
-                                                router.push(router);
-                                            }
-                                        }}
-                                        className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
-                                        <FontAwesomeIcon icon={faFolder} className="w-4 h-4 mr-1" />
-                                        <span className="whitespace-nowrap text-lg">
-                                            Root
-                                        </span>
-                                    </div>
-
-                                    {paths?.map((path: any, index: number) => (
-                                        <div
-                                            key={'path-' + index}
-                                            onClick={() => {
-                                                if (selectState == false) {
-                                                    router.query._id = path.slug;
-                                                    router.push(router);
-                                                }
-                                            }}
-                                            className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
-                                            <FontAwesomeIcon icon={faCaretRight} className="w-4 h-4 text-gray-400 mr-1" />
-                                            <FontAwesomeIcon icon={faFolder} className="w-4 h-4 mr-1" />
-                                            <span className="whitespace-nowrap text-lg">
-                                                {path.name}
-                                            </span>
+                                    {isPathLoaded == true ? (
+                                        <div className="mt-2 hidden xl:block">
+                                            {/* storageData */}
+                                            <Tippy content={`Kapasitas Drive Anda Tersisa ${storageData?.rest ?? 0}`} delay={300}>
+                                                <div className="relative bg-slate-400 border border-slate-300 h-4 w-full rounded-full overflow-hidden cursor-pointer group">
+                                                    <div className="bg-gradient-to-r from-sky-500 to-sky-800 animate-pulses h-full"
+                                                        style={
+                                                            {
+                                                                width: `${storageData?.percent ?? 0}%`
+                                                            }
+                                                        }>
+                                                    </div>
+                                                    <div className="absolute left-1 top-0 z-10 h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                                        <div className="font-semibold text-white text-[10px]">
+                                                            {storageData?.used}
+                                                        </div>
+                                                    </div>
+                                                    <div className="absolute right-1 top-0 z-10 h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                                        <div className="font-semibold text-white text-[10px]">
+                                                            {storageData?.total}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </Tippy>
                                         </div>
-                                    ))}
-
-                                    {currentPath && (
-                                        <div
-                                            className="cursor-pointer font-semibold hover:text-sky-600 flex items-center">
-                                            <FontAwesomeIcon icon={faCaretRight} className="w-4 h-4 text-gray-400 mr-1" />
-                                            <FontAwesomeIcon icon={faFolderOpen} className="w-4 h-4 mr-1" />
-                                            <span className="whitespace-nowrap text-lg">
-                                                {currentPath.name}
-                                            </span>
-                                        </div>
+                                    ) : (
+                                        <div className="mt-2 h-4 w-[300px] bg-slate-200 rounded-xl animate-pulse"></div>
                                     )}
                                 </>
                             )}
+                            {/* Capacity Bar End */}
 
-                            {isPathLoaded == false && (
-                                <div className="h-4 w-[300px] bg-slate-200 rounded animate-pulse"></div>
-                            )}
-
-                        </div>
-                        {/* Navigation End */}
-
-                        {/* sort & order start */}
-                        <div className="self-end flex items-center">
-                            {/* dropdown menu */}
-                            <div className="relative"
-                                onClick={() => {
-                                    setDropdownSort(!dropdownSort);
-                                }}>
-                                <div className={`${dropdownSort ? 'text-sky-500' : ''} hover:text-sky-500 transition-all duration-300 px-5 py-2 rounded flex items-center justify-center gap-1 cursor-pointer font-semibold`}>
-                                    {/* {`${dropdownSort ? 'bg-gradient-to-r from-blue-500 to-blue-300 text-white' : 'bg-sky-400 text-sky-100'} hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 hover:text-white shadow transition-all duration-300 px-5 py-2 rounded flex items-center justify-center gap-1 cursor-pointer font-semibold`} */}
-                                    {sortBy == 'name' && sortOrder == 'asc' && (
-                                        <>
-                                            <FontAwesomeIcon icon={faSortAlphaDown} className="w-3 h-3" />
-                                            Nama (A-Z)
-                                        </>
-                                    )}
-
-                                    {sortBy == 'name' && sortOrder == 'desc' && (
-                                        <>
-                                            <FontAwesomeIcon icon={faSortAlphaUp} className="w-3 h-3" />
-                                            Nama (Z-A)
-                                        </>
-                                    )}
-
-                                    {sortBy == 'created_at' && sortOrder == 'asc' && (
-                                        <>
-                                            <FontAwesomeIcon icon={faSortNumericDown} className="w-3 h-3" />
-                                            Unggahan Terlama
-                                        </>
-                                    )}
-
-                                    {sortBy == 'created_at' && sortOrder == 'desc' && (
-                                        <>
-                                            <FontAwesomeIcon icon={faSortNumericUp} className="w-3 h-3" />
-                                            Unggahan Terbaru
-                                        </>
-                                    )}
-
-                                </div>
-
-                                <div
-                                    ref={dropdownSortRef}
-                                    className={`${dropdownSort ? 'block' : 'hidden'} absolute rounded bg-white shadow border min-w-[200px] right-0 mt-2 z-20`}>
-
-                                    <div
-                                        onClick={(e) => {
-                                            setSortBy('name');
-                                            setSortOrder('asc');
-                                            setDropdownSort(false);
-                                        }}
-                                        className={`${sortBy == 'name' && sortOrder == 'asc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 rounded-t cursor-pointer transition-all duration-300`}>
-                                        <FontAwesomeIcon icon={faSortAlphaDown} className="w-4 h-4 mr-2 group-hover/item:text-white" />
-                                        <span className="font-semibold group-hover/item:text-white">
-                                            Nama (A-Z)
-                                        </span>
-                                    </div>
-
-
-                                    <div
-                                        onClick={(e) => {
-                                            setSortBy('name');
-                                            setSortOrder('desc');
-                                            setDropdownSort(false);
-                                        }}
-                                        className={`${sortBy == 'name' && sortOrder == 'desc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 cursor-pointer transition-all duration-300`}>
-                                        <FontAwesomeIcon icon={faSortAlphaUp} className="w-4 h-4 mr-2 group-hover/item:text-white" />
-                                        <span className="font-semibold group-hover/item:text-white">
-                                            Nama (Z-A)
-                                        </span>
-                                    </div>
-
-                                    <div
-                                        onClick={(e) => {
-                                            setSortBy('created_at');
-                                            setSortOrder('desc');
-                                            setDropdownSort(false);
-                                        }}
-                                        className={`${sortBy == 'created_at' && sortOrder == 'desc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 rounded-b cursor-pointer transition-all duration-300`}>
-                                        <FontAwesomeIcon icon={faSortNumericUp} className="w-4 h-4 mr-2 group-hover/item:text-white" />
-                                        <span className="font-semibold group-hover/item:text-white">
-                                            Unggahan Terbaru
-                                        </span>
-                                    </div>
-
-                                    <div
-                                        onClick={(e) => {
-                                            setSortBy('created_at');
-                                            setSortOrder('asc');
-                                            setDropdownSort(false);
-                                        }}
-                                        className={`${sortBy == 'created_at' && sortOrder == 'asc' ? 'bg-gradient-to-r from-blue-500 to-blue-300 !text-white' : 'text-blue-800'} px-4 py-3 flex items-center group/item hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-300 cursor-pointer transition-all duration-300`}>
-                                        <FontAwesomeIcon icon={faSortNumericDown} className="w-4 h-4 mr-2 group-hover/item:text-white" />
-                                        <span className="font-semibold group-hover/item:text-white">
-                                            Unggahan Terlama
-                                        </span>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                        {/* sort & order end */}
-                    </div>
-
-                </div >
-                {/* NavBar Start */}
-
-
-                {/* Main Start */}
-                <div className="grid grid-cols-10 gap-4">
-                    <div className={`col-span-10 ${showPanel ? 'xl:col-span-7' : 'xl:col-span-10'} mt-0 relative overflow-x-auto max-w-full h-[calc(100vh-280px)]`}>
-
-                        {isLoaded && (
-                            <div className="w-full h-full flex justify-center items-center rounded shadow-lg bg-white">
-                                <div className="flex items-center justify-center flex-col gap-y-3">
-                                    <div className="w-24 h-24 p-4 rounded-full bg-sky-300 animate-bounce shadow-2xl">
-                                        <img src="/favicon.png" alt="Loading" className="" />
-                                    </div>
-                                    <div className="text-3xl">
-                                        {isLoadingText}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="space-y-3">
-                            {ID !== '0' && (
-                                <div
-                                    onClick={() => {
-                                        if (selectState == false) {
-                                            if (currentPath) {
-                                                pickFolder(currentPath?.parent_slug?.toString() ?? '0');
-                                            }
-                                        }
-                                    }}
-                                    onDragOver={
-                                        (e) => {
-                                            e.preventDefault();
-                                            setOnDragState(true);
-                                            setDropTargetId(currentPath?.parent_slug ? currentPath?.parent_slug : 0);
-                                        }
-                                    }
-                                    className="px-5 py-6 shadow bg-slate-100 hover:bg-sky-100 rounded flex flex-col xl:flex-row xl:items-center justify-between gap-y-3 group/item cursor-pointer select-none">
-                                    <div className="flex items-center group-hover/item:text-sky-500">
-                                        <FontAwesomeIcon icon={faCaretSquareLeft} className="w-4 h-4 mr-2" />
-                                        <div className="font-semibold">
-                                            Kembali
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {datas?.map((item: any, index: number) => (
-
-                                <div key={`item-${item?.id}`}
-                                    className={`${onDragState ? '' : ''} px-5 shadow bg-white hover:bg-slate-100 rounded flex flex-col xl:flex-row xl:items-center justify-between gap-y-3 group/item cursor-pointer select-none relative border-2 border-transparent hover:border-sky-400 hover:shadow-md hover:shadow-sky-600 transition-all duration-300 ${pickedItem?.slug == item?.slug ? '!bg-slate-100 border-sky-400 shadow-md shadow-sky-600' : ''} ${selectedItems.includes(item.slug) ? '!bg-slate-100 border-sky-400 shadow-md shadow-sky-600' : ''}`}
-                                    id={`listitem-${item.slug}`}
-                                    onDragOver={
-                                        (e) => {
-                                            e.preventDefault();
-                                            setOnDragState(true);
-                                            // setExternalDrag(false);
-                                            setDropTargetId(item.slug);
-                                        }
-                                    }
-                                    onDragStartCapture={(e) => {
-                                        setExternalDrag(false);
-                                    }}
-                                    onDragLeave={
-                                        () => {
-                                            setOnDragState(false);
-                                        }
-                                    }
-                                    onDragEnd={
-                                        (e: any) => {
-                                            setOnDragState(false);
-                                            setExternalDrag(true);
-                                            if (selectState) {
-                                                __moveMassTo(dropTargetId);
-                                            }
-                                            else if (selectState == false) {
-                                                __moveTo(item.slug, dropTargetId);
-                                            }
-                                        }
-                                    }
-
-                                    // on right click
-                                    onContextMenu={(e) => {
-                                        e.preventDefault();
-                                        // show context menu
-                                        if (isOnDownload === false) {
-                                            setContextMenu({
-                                                top: e.clientY,
-                                                left: e.clientX,
-                                                show: true,
-                                                item: item,
-                                            });
-                                        }
-                                    }}
-
-                                    draggable={true}>
-
-                                    {(contextMenu?.show && contextMenu?.item?.id === item?.id) && (
-                                        <div
-                                            ref={contextMenuRef}
-
-                                            className={`bg-white absolute z-20 bottom-[10px] shadow rounded`}
-                                            style={{
-                                                left: (contextMenu?.left - 30) + 'px',
-                                            }}>
-                                            <div className="space-y-2">
-
-                                                <div
-                                                    onClick={() => {
-                                                        __confirmDeleteSingle(contextMenu?.item?.slug);
-                                                    }}
-                                                    className="px-6 py-2 hover:bg-red-100 cursor-pointer flex items-center">
-                                                    <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4 mr-2 text-red-600" />
-                                                    <span className="font-semibold text-red-600">
-                                                        Hapus
-                                                    </span>
-                                                </div>
-
-                                                <div
-                                                    onClick={() => {
-                                                        goShare(contextMenu?.item);
-                                                    }}
-                                                    className="px-6 py-2 hover:bg-green-100 cursor-pointer flex items-center">
-                                                    <FontAwesomeIcon icon={faShareSquare} className="w-4 h-4 mr-2 text-green-600" />
-                                                    <span className="font-semibold text-green-600">
-                                                        Bagikan
-                                                    </span>
-                                                </div>
-
-                                                {item?.type == 'file' && (
-                                                    <div
-                                                        onClick={() => {
-                                                            __confirmDownload(contextMenu?.item);
-                                                        }}
-                                                        className="px-6 py-2 hover:bg-sky-100 cursor-pointer flex items-center">
-                                                        <FontAwesomeIcon icon={faCloudDownloadAlt} className="w-4 h-4 mr-2 text-sky-600" />
-                                                        <span className="font-semibold text-sky-600">
-                                                            Unduh
-                                                        </span>
-                                                    </div>
-                                                )}
-
-                                                <div
-                                                    onClick={() => {
-                                                        goEdit(contextMenu?.item);
-                                                    }}
-                                                    className="px-6 py-2 hover:bg-sky-100 cursor-pointer flex items-center">
-                                                    <div className="w-4 h-4 mr-2 flex items-center justify-center">
-                                                        <FontAwesomeIcon icon={faPen} className="w-3 h-3 text-sky-600" />
-                                                    </div>
-                                                    <span className="font-semibold text-sky-600">
-                                                        Sunting
-                                                    </span>
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {selectState && (
-                                        <div className="flex-none w-8 z-10">
-                                            <input
-                                                type="checkbox"
-                                                value={item.slug}
-                                                checked={selectedItems.includes(item.slug)}
-                                                onChange={() => {
-                                                    if (selectedItems.includes(item.slug)) {
-                                                        setSelectedItems(selectedItems.filter((i: number) => i !== item.slug));
-                                                    } else {
-                                                        setSelectedItems([...selectedItems, item.slug]);
-                                                    }
-                                                }}
-                                                className="form-checkbox" />
-                                        </div>
-                                    )}
-
-                                    <div className="grow flex items-center py-6 z-10"
-                                        onClick={() => {
-                                            if (selectState) {
-                                                if (selectedItems.includes(item.slug)) {
-                                                    setSelectedItems(selectedItems.filter((i: number) => i !== item.slug));
-                                                } else {
-                                                    setSelectedItems([...selectedItems, item.slug]);
-                                                }
-                                            }
-                                            else {
-                                                setPickedItem(item);
-                                            }
-                                        }}
-                                        onDoubleClick={() => {
-                                            if (selectState == false) {
-                                                if (item.type == 'folder') {
-                                                    pickFolder(item.slug);
-                                                }
-                                                if (item.type == 'file') {
-                                                    openFile(item);
-                                                }
-                                            }
-                                        }}>
-                                        <div className="mr-3">
-                                            {item.type == 'folder' && (
-                                                <>
-                                                    <FontAwesomeIcon icon={faFolder} className="w-6 h-6 text-blue-800 block group-hover/item:hidden" />
-                                                    <FontAwesomeIcon icon={faFolderOpen} className="w-6 h-6 text-blue-800 hidden group-hover/item:block" />
-                                                </>
-                                            )}
-                                            {item.type == 'file' && (
-                                                <div className="w-6 h-6">
-                                                    {item.extension == 'pdf' && (
-                                                        <FontAwesomeIcon icon={faFilePdf} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
-                                                    )}
-
-                                                    {['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'z'].includes(item.extension) && (
-                                                        <FontAwesomeIcon icon={faFileZipper} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
-                                                    )}
-
-                                                    {['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'tiff', 'ico', 'psd', 'ai', 'indd', 'raw', 'webp', 'svg'].includes(item.extension) && (
-                                                        <FontAwesomeIcon icon={faImage} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
-                                                    )}
-
-                                                    {['mp3', 'wav', 'ogg', 'wma', 'm4a', 'flac', 'aac'].includes(item.extension) && (
-                                                        <FontAwesomeIcon icon={faFileAudio} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
-                                                    )}
-
-                                                    {['mp4', 'mkv', 'webm', 'flv', 'vob', 'ogv', 'ogg', 'drc', 'gifv', 'mng', 'avi', 'mts', 'm2ts', 'mov', 'qt', 'wmv', 'yuv', 'rm', 'rmvb', 'asf', 'amv', 'mpg', 'mp2', 'mpeg', 'mpe', 'mpv', 'm4p', 'm4v', 'svi', '3gp', '3g2', 'mxf', 'roq', 'nsv', 'flv', 'f4v', 'f4p', 'f4a', 'f4b'].includes(item.extension) && (
-                                                        <FontAwesomeIcon icon={faFileAudio} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
-                                                    )}
-
-                                                    {(item.extension == 'doc'
-                                                        || item.extension == 'docx') && (
-                                                            <FontAwesomeIcon icon={faFileWord} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
-                                                        )}
-
-                                                    {(item.extension == 'xls'
-                                                        || item.extension == 'xlsx'
-                                                        || item.extension == 'csv') && (
-                                                            <FontAwesomeIcon icon={faFileExcel} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
-                                                        )}
-
-                                                    {(item.extension == 'ppt'
-                                                        || item.extension == 'pptx') && (
-                                                            <FontAwesomeIcon icon={faFilePowerpoint} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
-                                                        )}
-                                                    {['html', 'json', 'dmg', 'exe'].includes(item.extension) && (
-                                                        <FontAwesomeIcon icon={faFile} className="w-6 h-6 text-blue-800 group-hover/item:rotate-12" />
-                                                    )}
-
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="">
-                                            <div className="flex items-center gap-2">
-                                                <div className="line-clamp-2 font-semibold">
-                                                    {item.type == 'folder' && (
-                                                        <>
-                                                            {item.name}
-                                                        </>
-                                                    )}
-                                                    {item.type == 'file' && (
-                                                        <>
-                                                            {`${item.name}.${item.extension}`}
-                                                        </>
-                                                    )}
-
-                                                </div>
-                                                <div className="">
-                                                    {item.publicity.status == 'public' && (
-                                                        <Tippy content="Klik untuk menyalin tautan" delay={300}>
-                                                            <div
-                                                                onClick={() => {
-                                                                    navigator.clipboard.writeText(ClientDomain() + '/sharer?_id=' + item?.slug);
-                                                                    showAlert('success', 'Berhasil', 'Tautan Berhasil Disalin');
-                                                                    // goShare(item);
-                                                                }}
-                                                                className="flex items-center gap-x-1 cursor-pointer">
-                                                                <FontAwesomeIcon icon={faShareAlt} className="w-3 h-3 text-green-500" />
-                                                                <div className="text-xs text-green-500 hidden lg:block lg:opacity-0 group-hover/item:opacity-100 transition-all duration-300">
-                                                                    Salin Tautan
-                                                                </div>
-                                                            </div>
-                                                        </Tippy>
-                                                    )}
-                                                    {item.publicity.status == 'private' && (
-                                                        <div
-                                                            onClick={() => {
-                                                                goShare(item);
-                                                            }}
-                                                            className="flex items-center gap-x-1 cursor-pointer">
-                                                            <FontAwesomeIcon icon={faLock} className="w-3 h-3 text-blue-500" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="text-slate-400 text-xs flex items-center mt-1">
-                                                <div className="text-xs text-slate-400 mr-2">
-                                                    {item.type === 'file' && (
-                                                        <span>
-                                                            {item.size}
-                                                        </span>
-                                                    )}
-                                                    {item.type === 'folder' && (
-                                                        <span>{item.childs} berkas</span>
-                                                    )}
-                                                </div>
-                                                <FontAwesomeIcon icon={faCalendarAlt} className="w-2.5 h-2.5 mr-1" />
-                                                <span>
-                                                    {new Date(item.created_at).toLocaleString('id-ID', {
-                                                        day: 'numeric',
-                                                        month: 'short',
-                                                        year: 'numeric',
-                                                        hour: 'numeric',
-                                                        minute: 'numeric',
-                                                    })}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-between xl:justify-normal gap-x-4 w-full xl:w-auto z-10">
-                                        {selectState == false && (
-                                            <div className="flex items-center gap-x-2 transition-all duration-200 xl:opacity-0 xl:group-hover/item:opacity-100">
-
-                                                {item.type == 'file' && (
-                                                    <Tippy content={
-                                                        <div className="p-1 flex flex-col gap-2">
-
-                                                            <div
-                                                                onClick={(e) => {
-                                                                    openFile(item, 'preview');
-                                                                }}
-                                                                className="flex items-center text-sm cursor-pointer">
-                                                                <FontAwesomeIcon icon={faEye} className="w-3 h-3 mr-2" />
-                                                                <span>
-                                                                    Preview
-                                                                </span>
-                                                            </div>
-
-                                                            {['xls', 'xlsx'].includes(item.extension) && (
-                                                                <div
-                                                                    onClick={(e) => {
-                                                                        openFile(item, 'spreadsheet');
-                                                                    }}
-                                                                    className="flex items-center text-sm cursor-pointer">
-                                                                    <FontAwesomeIcon icon={faFileExcel} className="w-3 h-3 mr-2" />
-                                                                    <span>
-                                                                        Spreadsheet
-                                                                    </span>
-                                                                </div>
-                                                            )}
-
-                                                            {['doc', 'docx'].includes(item.extension) && (
-                                                                <div
-                                                                    onClick={(e) => {
-                                                                        openFile(item, 'doc');
-                                                                    }}
-                                                                    className="flex items-center text-sm cursor-pointer">
-                                                                    <FontAwesomeIcon icon={faFileWord} className="w-3 h-3 mr-2" />
-                                                                    <span>
-                                                                        Google Doc
-                                                                    </span>
-                                                                </div>
-                                                            )}
-
-                                                        </div>
-                                                    }
-                                                        allowHTML={true}
-                                                        interactive={true}
-                                                        delay={300}>
-                                                        <div
-                                                            className="rounded-full hover:bg-slate-200 p-1.5 cursor-pointer">
-                                                            <FontAwesomeIcon icon={faEye} className="w-4 h-4 text-slate-400 hover:text-slate-500" />
-                                                        </div>
-                                                    </Tippy>
-                                                )}
-
-                                                <Tippy content="Bagikan" delay={300}>
-                                                    <div
-                                                        onClick={() => {
-                                                            goShare(item);
-                                                        }}
-                                                        className="rounded-full hover:bg-green-200 p-1.5 cursor-pointer">
-                                                        <FontAwesomeIcon icon={faShareSquare} className="w-4 h-4 text-green-400 hover:text-green-500" />
-                                                    </div>
-                                                </Tippy>
-
-                                                {item.type == 'file' && (
-                                                    <Tippy content="Unduh" delay={300}>
-                                                        <div
-                                                            onClick={() => {
-                                                                __confirmDownload(item);
-                                                            }}
-                                                            className="rounded-full hover:bg-sky-200 p-1.5 cursor-pointer">
-                                                            <FontAwesomeIcon icon={faCloudDownloadAlt} className="w-4 h-4 text-sky-400 hover:text-sky-500" />
-                                                        </div>
-                                                    </Tippy>
-                                                )}
-
-                                                <Tippy content="Sunting" delay={300}>
-                                                    <div
-                                                        onClick={() => {
-                                                            goEdit(item);
-                                                        }}
-                                                        className="rounded-full hover:bg-blue-200 p-2 cursor-pointer">
-                                                        <FontAwesomeIcon icon={faPen} className="w-3 h-3 text-blue-400 hover:text-blue-500" />
-                                                    </div>
-                                                </Tippy>
-
-                                                <Tippy content="Hapus" delay={300}>
-                                                    <div
-                                                        onClick={(e) => {
-                                                            __confirmDeleteSingle(item.slug);
-                                                        }}
-                                                        className="rounded-full hover:bg-red-200 p-2 cursor-pointer">
-                                                        <FontAwesomeIcon icon={faTrashAlt} className="w-3 h-3 text-red-400 hover:text-red-500" />
-                                                    </div>
-                                                </Tippy>
-
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* logo bg per file start */}
-                                    <div className="z-0">
-                                        <img
-                                            className={`absolute top-0 right-0 lg:right-[200px] w-auto h-full group-hover/item:blur-sm opacity-20 group-hover/item:opacity-100 ${pickedItem?.slug == item?.slug ? '!blur-sm !opacity-100' : ''}`}
-                                            src="/logo.png" />
-                                    </div>
-                                    {/* logo bg per file end */}
-
-
-                                    {/* download animation start */}
-                                    {isOnDownload && onDownloadId == item.slug && (
-                                        <>
-                                            <div className="absolute top-0 left-0 w-full h-full bg-sky-300 rounded z-20">
-                                                <div className="w-full h-full flex items-center justify-center">
-                                                    <div className="relative z-20 text-2xl font-bold text-sky-300 tracking-[20px]">
-                                                        SEDANG MENGUNDUH
-                                                    </div>
-                                                    <div className="absolute top-0 left-0 flex items-center w-full h-full animate-marquee z-10">
-                                                        <div className="w-80 h-full bg-white/50 -skew-x-12"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                    {/* download animation end */}
-                                </div>
-
-                            ))}
 
                         </div>
 
-                    </div>
-                    <div className={`${showPanel ? 'xl:col-span-3' : 'hidden'} p-4 bg-white rounded shadow-lg`}>
-                        <div className="flex items-center justify-between">
-                            <div className="font-semibold">
-                                {editItem?.name}
+                        <div className="md:absolute bottom-[2px] left-0 w-full">
+                            <div className="text-xs text-center">
+                                © {new Date().getFullYear() == 2022 ? 2022 : '2022 - ' + new Date().getFullYear()}.
+                                Drive Kabupaten Ogan Ilir.
                             </div>
-                            <div className="">
-                                <FontAwesomeIcon icon={faTimes}
-                                    className="w-4 h-4 cursor-pointer hover:text-red-500 transition-all duration-200"
-                                    onClick={() => {
-                                        setShowPanel(false);
-                                    }} />
+                            <div className="text-xs text-center">
+                                Kominfo Kabupaten Ogan Ilir.
                             </div>
                         </div>
                     </div>
+
                 </div>
                 {/* Main Start */}
 
@@ -2410,7 +2678,7 @@ const Main = () => {
                     </Dialog>
                 </Transition>
 
-                {onUpload == false && (
+                {(onUpload == false && isInTrash == false) && (
                     <div
                         className={`${(ExternalDrag == true && onDragState == true) ? 'block' : 'hidden'} fixed inset-0 bg-[black]/50 z-[999]`}>
                         <div className="absolute top-0 right-0 m-4">
