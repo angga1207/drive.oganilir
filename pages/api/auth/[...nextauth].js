@@ -5,6 +5,23 @@ import GoogleProvider from 'next-auth/providers/google';
 
 export const authOptions = {
     providers: [
+        CredentialsProvider({
+            name: 'Credentials',
+            credentials: {
+                username: { label: "Username", type: "text" },
+                password: { label: "Password", type: "password" }
+            },
+            async authorize(credentials, req) {
+                const user = {
+                    id:
+                        1, name: 'J Smith', email: '', image: '/avatar.jpg'
+                };
+                if (user) {
+                    return user;
+                }
+                return null;
+            }
+        }),
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,

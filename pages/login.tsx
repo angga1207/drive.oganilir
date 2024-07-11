@@ -112,6 +112,11 @@ const Login = () => {
             return;
         }
 
+        // signIn('Credentials', {
+        //     username: datas.username,
+        //     password: datas.password
+        // });
+
         attempLogin(datas).then((res) => {
             if (res.status === 'success') {
                 localStorage.setItem('token', res.data.token);

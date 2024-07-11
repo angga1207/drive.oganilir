@@ -30,6 +30,13 @@ export async function serverCheck() {
         })
         const data = await res.data;
 
+        if (data.message == 'Unauthenticated') {
+            // showSweetAlert('info', 'Peringatan', 'Sesi Anda telah berakhir, silahkan login kembali', 'Tutup');
+            localStorage.removeItem('token');
+            deleteCookie('token');
+            window.location.href = '/login';
+        }
+
         if (data.status == 'success') {
             if (data.user === null) {
                 localStorage.removeItem('token');
