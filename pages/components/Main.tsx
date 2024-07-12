@@ -168,9 +168,10 @@ const Main = () => {
                                 router.push('/login');
                             }
                         });
-                    } else {
-                        showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
                     }
+                    // else {
+                    //     showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
+                    // }
                 }
             });
         }
@@ -266,9 +267,10 @@ const Main = () => {
                                 router.push('/login');
                             }
                         });
-                    } else {
-                        showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
                     }
+                    //  else {
+                    //     showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
+                    // }
                 }
                 setIsLoaded(false);
             });
@@ -284,10 +286,30 @@ const Main = () => {
             if (res.status === 'success') {
                 setDatas(res.data);
             }
-            // if (res.status === 'error') {
-            //     showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
-            // }
-            // setIsLoaded(false);
+
+            if (res.status === 'error') {
+                if (res.message.response.statusText === "Unauthorized") {
+                    Swal.fire({
+                        title: 'Sesi Anda telah berakhir',
+                        text: 'Silahkan login kembali',
+                        icon: 'info',
+                        showCancelButton: false,
+                        confirmButtonText: 'Login',
+                        cancelButtonText: 'Tutup',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            router.push('/login');
+                        }
+                        if (result.isDismissed) {
+                            router.push('/login');
+                        }
+                    });
+                }
+                //  else {
+                //     showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
+                // }
+            }
+            setIsLoaded(false);
         });
     }
 
@@ -308,9 +330,9 @@ const Main = () => {
             if (res.data.status === 'success') {
                 setTrashedItems(res.data.data);
             }
-            if (res.data.status === 'error') {
-                showSweetAlert('info', 'Peringatan', res?.data?.message, 'Tutup');
-            }
+            // if (res.data.status === 'error') {
+            //     showSweetAlert('info', 'Peringatan', res?.data?.message, 'Tutup');
+            // }
         });
     }
 
@@ -345,9 +367,9 @@ const Main = () => {
                     setSearchedItems(res.data);
                     setIsOpenSearchBar(true);
                 }
-                else if (res.status === 'error') {
-                    showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
-                }
+                // else if (res.status === 'error') {
+                //     showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
+                // }
             });
         }
     }
@@ -1894,7 +1916,7 @@ const Main = () => {
 
                         <hr className="my-3" />
 
-                        <div className="space-y-3 w-full md:max-h-[calc(100vh-350px)] relative overflow-y-auto">
+                        <div className="space-y-3 w-full md:max-h-[calc(100vh-360px)] relative overflow-y-auto">
 
                             <div className="flex items-center gap-2 group/link">
                                 <div className="flex-none">
@@ -1962,7 +1984,7 @@ const Main = () => {
 
                         </div>
 
-                        <div className="md:absolute bottom-[2px] left-0 w-full">
+                        <div className="md:absolute bottom-[10px] left-0 w-full">
                             <div className="text-xs text-center">
                                 © {new Date().getFullYear() == 2022 ? 2022 : '2022 - ' + new Date().getFullYear()}.
                                 Drive Kabupaten Ogan Ilir.
