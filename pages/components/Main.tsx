@@ -268,9 +268,10 @@ const Main = () => {
                             }
                         });
                     }
-                    //  else {
-                    //     showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
-                    // }
+                    else {
+                        router.push('/login');
+                        // showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
+                    }
                 }
                 setIsLoaded(false);
             });
@@ -305,9 +306,9 @@ const Main = () => {
                         }
                     });
                 }
-                //  else {
-                //     showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
-                // }
+                else {
+                    router.push('/login');
+                }
             }
             setIsLoaded(false);
         });
