@@ -269,7 +269,7 @@ const Main = () => {
                         });
                     }
                     else {
-                        // router.push('/login');
+                        router.push('/login');
                         // showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
                     }
                 }
@@ -307,7 +307,7 @@ const Main = () => {
                     });
                 }
                 else {
-                    // router.push('/login');
+                    router.push('/login');
                 }
             }
             setIsLoaded(false);
