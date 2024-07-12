@@ -251,7 +251,7 @@ const Main = () => {
                     setDatas(res.data);
                 }
                 if (res.status === 'error') {
-                    if (res.message.response.statusText === "Unauthorized") {
+                    if (res?.message?.response?.statusText === "Unauthorized") {
                         Swal.fire({
                             title: 'Sesi Anda telah berakhir',
                             text: 'Silahkan login kembali',
