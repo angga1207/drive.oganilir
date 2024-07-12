@@ -71,7 +71,7 @@ const Login = () => {
                     setToken(res.data.token);
                     setCookie('token', res.data.token);
                     setTimeout(() => {
-                        // window.location.href = '/';
+                        window.location.href = '/';
                     }, 1000);
                 } else {
                     showSweetAlert('error', 'Error', res.message, 'OK', 'Batal', () => { });
