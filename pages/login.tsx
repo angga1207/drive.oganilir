@@ -72,8 +72,18 @@ const Login = () => {
                         localStorage.setItem('user', JSON.stringify(res.data.user));
                         localStorage.setItem('logginByGoogle', 'true')
                         window.location.href = '/';
-                    } else {
-                        showSweetAlert('error', 'Error', res.message, 'OK', 'Batal', () => { });
+                    }
+                    if (res.status === 'error valdation') {
+                        setIsLoading(false);
+                        Object.keys(res.message).map((key) => {
+                            const error = res.message[key];
+                            const el = document.getElementById(`error-${key}`);
+                            if (el) {
+                                el.innerHTML = error;
+                            }
+                        });
+                        localStorage.setItem('logginByGoogle', 'false')
+                        localStorage.removeItem('user');
                     }
                 });
             }
