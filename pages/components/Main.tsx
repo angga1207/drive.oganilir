@@ -47,6 +47,11 @@ const showAlert = async (icon: any, title: any, text: any) => {
     });
 }
 
+var CurrentToken = '';
+if (typeof window !== 'undefined') {
+    CurrentToken = document.cookie.split('=')[1];
+}
+
 const Main = () => {
 
     const [ID, setID] = useState<any>(0);
@@ -326,7 +331,7 @@ const Main = () => {
         const res = axios.get(`${BaseUri()}/getItemsTrashed`, {
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                Authorization: `Bearer ${CurrentToken}`,
             },
         }).then((res: any) => {
             if (res.data.status === 'success') {
@@ -342,7 +347,7 @@ const Main = () => {
         const res = axios.post(`${BaseUri()}/restore/${slug}`, {}, {
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                Authorization: `Bearer ${CurrentToken}`,
             },
         }).then((res: any) => {
             if (res.data.status === 'success') {

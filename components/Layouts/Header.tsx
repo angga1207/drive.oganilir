@@ -44,8 +44,10 @@ const Header = () => {
     useEffect(() => {
         if (localStorage.getItem('user')) {
             const unRaw = localStorage.getItem('user');
-            if (unRaw) {
+            try {
                 setUser(JSON.parse(unRaw ?? '{}'));
+            } catch (e) {
+                localStorage.removeItem('user');
             }
         }
     }, [isMounted]);
