@@ -64,8 +64,8 @@ const Login = () => {
 
     useEffect(() => {
         if (mySess.status === 'authenticated') {
-            setIsLoading(true);
             if (localStorage.getItem('logginByGoogle') === 'true') {
+                setIsLoading(true);
                 loggedWithGoogle(mySess.data.user).then((res) => {
                     if (res.status === 'success') {
                         document.cookie = `token=${res.data.token}; path=/; max-age=86400`;
@@ -85,9 +85,9 @@ const Login = () => {
                         localStorage.setItem('logginByGoogle', 'false')
                         localStorage.removeItem('user');
                     }
+                    setIsLoading(false);
                 });
             }
-            setIsLoading(false);
         }
     }, [mySess]);
 
