@@ -43,26 +43,11 @@ const authOptions: NextAuthOptions = {
 
                 if (token && id) {
                     return {
-                        id: id,
+                        id: id as string,
                         username: username,
-                        name: {
-                            fullname: fullname,
-                            firstname: firstname,
-                            lastname: lastname,
-                        },
-                        email: email,
-                        photo: photo,
-                        googleIntegated: googleIntegated,
-                        storage: {
-                            total: storage_total,
-                            used: storage_used,
-                            rest: storage_rest,
-                            percent: storage_percent,
-                        },
-                        token: token,
                     }
                 }
-                throw new Error("No credentials");
+                // throw new Error("No credentials");
                 return null;
             },
         }),
