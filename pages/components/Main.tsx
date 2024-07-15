@@ -22,6 +22,7 @@ import Swal from 'sweetalert2';
 import Head from "next/head";
 import axios from "axios";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 const showSweetAlert = async (icon: any, title: any, text: any, confirmButtonText: any) => {
     Swal.fire({
@@ -56,6 +57,13 @@ const Main = () => {
     }, []);
     const router = useRouter();
 
+    const mySess = useSession();
+    useEffect(() => {
+        if (mySess.status === 'unauthenticated') {
+            router.push('/login');
+        }
+    }, [mySess]);
+
     const [user, setUser] = useState<any>(null);
     const [storageData, setStorageData] = useState<any>(null);
 
@@ -65,9 +73,6 @@ const Main = () => {
             setUser(unRaw);
             setStorageData(unRaw?.storage);
         }
-        //  else {
-        //     router.push('/login');
-        // }
     }, [isMounted]);
 
 
@@ -155,20 +160,20 @@ const Main = () => {
                     setIsPathLoaded(true);
                 }
                 if (res.status === 'error') {
-                    if (res.message.response.statusText === "Unauthorized") {
-                        Swal.fire({
-                            title: 'Sesi Anda telah berakhir',
-                            text: 'Silahkan login kembali',
-                            icon: 'info',
-                            showCancelButton: false,
-                            confirmButtonText: 'Login',
-                            cancelButtonText: 'Tutup',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                router.push('/login');
-                            }
-                        });
-                    }
+                    // if (res.message.response.statusText === "Unauthorized") {
+                    //     Swal.fire({
+                    //         title: 'Sesi Anda telah berakhir',
+                    //         text: 'Silahkan login kembali',
+                    //         icon: 'info',
+                    //         showCancelButton: false,
+                    //         confirmButtonText: 'Login',
+                    //         cancelButtonText: 'Tutup',
+                    //     }).then((result) => {
+                    //         if (result.isConfirmed) {
+                    //             // router.push('/login');
+                    //         }
+                    //     });
+                    // }
                     // else {
                     //     showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
                     // }
@@ -251,27 +256,27 @@ const Main = () => {
                     setDatas(res.data);
                 }
                 if (res.status === 'error') {
-                    if (res?.message?.response?.statusText === "Unauthorized") {
-                        Swal.fire({
-                            title: 'Sesi Anda telah berakhir',
-                            text: 'Silahkan login kembali',
-                            icon: 'info',
-                            showCancelButton: false,
-                            confirmButtonText: 'Login',
-                            cancelButtonText: 'Tutup',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                router.push('/login');
-                            }
-                            if (result.isDismissed) {
-                                router.push('/login');
-                            }
-                        });
-                    }
-                    else {
-                        // router.push('/login');
-                        // showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
-                    }
+                    // if (res?.message?.response?.statusText === "Unauthorized") {
+                    //     Swal.fire({
+                    //         title: 'Sesi Anda telah berakhir',
+                    //         text: 'Silahkan login kembali',
+                    //         icon: 'info',
+                    //         showCancelButton: false,
+                    //         confirmButtonText: 'Login',
+                    //         cancelButtonText: 'Tutup',
+                    //     }).then((result) => {
+                    //         if (result.isConfirmed) {
+                    //             // router.push('/login');
+                    //         }
+                    //         if (result.isDismissed) {
+                    //             // router.push('/login');
+                    //         }
+                    //     });
+                    // }
+                    // else {
+                    //     // router.push('/login');
+                    //     // showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
+                    // }
                 }
                 setIsLoaded(false);
             });
@@ -281,34 +286,31 @@ const Main = () => {
     const reloadItems = () => {
         // setIsLoaded(true);
         getItems(router.query._id, sortBy, sortOrder).then((res) => {
-            if (res.message === 'Unauthenticated') {
-                showSweetAlert('info', 'Peringatan', 'Sesi Anda telah berakhir, silahkan login kembali', 'Tutup');
-            }
             if (res.status === 'success') {
                 setDatas(res.data);
             }
 
             if (res.status === 'error') {
-                if (res.message.response.statusText === "Unauthorized") {
-                    Swal.fire({
-                        title: 'Sesi Anda telah berakhir',
-                        text: 'Silahkan login kembali',
-                        icon: 'info',
-                        showCancelButton: false,
-                        confirmButtonText: 'Login',
-                        cancelButtonText: 'Tutup',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            router.push('/login');
-                        }
-                        if (result.isDismissed) {
-                            router.push('/login');
-                        }
-                    });
-                }
-                else {
-                    // router.push('/login');
-                }
+                // if (res.message.response.statusText === "Unauthorized") {
+                //     Swal.fire({
+                //         title: 'Sesi Anda telah berakhir',
+                //         text: 'Silahkan login kembali',
+                //         icon: 'info',
+                //         showCancelButton: false,
+                //         confirmButtonText: 'Login',
+                //         cancelButtonText: 'Tutup',
+                //     }).then((result) => {
+                //         if (result.isConfirmed) {
+                //             router.push('/login');
+                //         }
+                //         if (result.isDismissed) {
+                //             router.push('/login');
+                //         }
+                //     });
+                // }
+                // else {
+                //     // router.push('/login');
+                // }
             }
             setIsLoaded(false);
         });
@@ -327,7 +329,6 @@ const Main = () => {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
         }).then((res: any) => {
-            console.log(res.data)
             if (res.data.status === 'success') {
                 setTrashedItems(res.data.data);
             }

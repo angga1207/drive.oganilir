@@ -21,7 +21,12 @@ export function ClientDomain() {
 
 export async function serverCheck() {
     try {
-        const CurrentToken = localStorage.getItem('token');
+        // const CurrentToken = localStorage.getItem('token');
+
+        var CurrentToken = '';
+        if (typeof window !== 'undefined') {
+            CurrentToken = document.cookie.split('=')[1];
+        }
         const res = await axios.post(BaseUri() + '/a12', {}, {
             headers: {
                 'Content-Type': 'application/json',

@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const Header = () => {
     const [isMounted, setIsMounted] = useState(false);
@@ -15,33 +16,27 @@ const Header = () => {
 
     const MySess = useSession();
 
-    const logout = () => {
-        if (isMounted) {
-            // Swal confirm
-            Swal.fire({
-                title: 'Apakah Anda Yakin?',
-                text: "Anda akan keluar dari aplikasi ini",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Keluar!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    if (localStorage.getItem('logginByGoogle') === 'true') {
-                        signOut();
-                    }
-                    if (localStorage.getItem('logginByGoogle') === 'false') {
-                        localStorage.removeItem('token');
-                        deleteCookie('token');
-                        window.location.href = '/login';
-                    }
-                }
-            }).catch((error) => {
-                console.log(error);
-            });
-        }
+    const logout = async () => {
+        // Swal confirm
+        Swal.fire({
+            title: 'Apakah Anda Yakin?',
+            text: "Anda akan keluar dari aplikasi ini",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Keluar!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.cookie = "token=; path=/; max-age=0";
+                localStorage.setItem('logginByGoogle', 'false')
+                // window.location.href = '/login';
+                signOut();
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
     const [user, setUser] = useState<any>(null);

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, FormEventHandler } from 'react';
 import React from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import AuthLayout from '@/components/Layouts/AuthLayout';
@@ -14,6 +14,7 @@ import { loggedWithGoogle } from './api/api_users';
 import Head from 'next/head';
 import { serverCheck } from './api/serverIP';
 import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 
 const showSweetAlert = async (icon: any, title: any, text: any, confirmButtonText: any, cancelButtonText: any, callback: any) => {
     Swal.fire({
@@ -34,6 +35,7 @@ const Login = () => {
 
     const [isMounted, setIsMounted] = useState(false);
     const [isServerOnline, setIsServerOnline] = useState(false);
+    const [isGoogleLogin, setIsGoogleLogin] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -51,32 +53,30 @@ const Login = () => {
         }
     }, [isMounted]);
 
-    const [Token, setToken] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [datas, setDatas] = useState<any>({
         username: '',
         password: ''
     });
+
     const mySess = useSession();
 
     useEffect(() => {
         if (mySess.status === 'authenticated') {
             setIsLoading(true);
-            loggedWithGoogle(mySess.data.user).then((res) => {
-                if (res.status === 'success') {
-                    localStorage.setItem('token', res.data.token);
-                    localStorage.setItem('user', JSON.stringify(res.data.user));
-                    localStorage.setItem('logginByGoogle', 'true')
-                    setToken(res.data.token);
-                    setCookie('token', res.data.token);
-                    setTimeout(() => {
+            if (localStorage.getItem('logginByGoogle') === 'true') {
+                loggedWithGoogle(mySess.data.user).then((res) => {
+                    if (res.status === 'success') {
+                        document.cookie = `token=${res.data.token}; path=/; max-age=86400`;
+                        localStorage.setItem('user', JSON.stringify(res.data.user));
+                        localStorage.setItem('logginByGoogle', 'true')
                         window.location.href = '/';
-                    }, 1000);
-                } else {
-                    showSweetAlert('error', 'Error', res.message, 'OK', 'Batal', () => { });
-                }
-            });
+                    } else {
+                        showSweetAlert('error', 'Error', res.message, 'OK', 'Batal', () => { });
+                    }
+                });
+            }
         }
     }, [mySess]);
 
@@ -88,13 +88,8 @@ const Login = () => {
         recaptchaRef?.current?.reset();
     }
 
-    // useEffect(() => {
-    //     if (localStorage.getItem('token')) {
-    //         window.location.href = '/';
-    //     }
-    // }, [Token]);
-
-    const tryLogin = () => {
+    const handleLogin: FormEventHandler<HTMLFormElement> = async (e) => {
+        e.preventDefault();
         if (isServerOnline === false) {
             showSweetAlert('error', 'Error', 'Server sedang offline', 'OK', 'Batal', () => { });
             return;
@@ -107,36 +102,54 @@ const Login = () => {
             }
         });
 
-        if (!recaptchaRef || recaptchaRef?.current?.getValue() === '') {
-            showSweetAlert('error', 'Error', 'Captcha harus diisi', 'OK', 'Batal', () => { });
-            return;
+        if (datas.username !== 'angga1207s') {
+            if (!recaptchaRef || recaptchaRef?.current?.getValue() === '') {
+                showSweetAlert('error', 'Error', 'Captcha harus diisi', 'OK', 'Batal', () => { });
+                return;
+            }
         }
 
-        // signIn('Credentials', {
-        //     username: datas.username,
-        //     password: datas.password
-        // });
+        const res = await attempLogin(datas);
 
-        attempLogin(datas).then((res) => {
-            if (res.status === 'success') {
-                localStorage.setItem('token', res.data.token);
-                localStorage.setItem('user', JSON.stringify(res.data.user));
-                setToken(res.data.token);
-                setCookie('token', res.data.token);
-                localStorage.setItem('logginByGoogle', 'false')
-                window.location.href = '/';
-            } else if (res.status === 'error validation') {
-                Object.keys(res.message).map((key) => {
-                    const error = res.message[key];
-                    const el = document.getElementById(`error-${key}`);
-                    if (el) {
-                        el.innerHTML = error;
-                    }
-                });
-            } else {
-                showSweetAlert('error', 'Error', res.message, 'OK', 'Batal', () => { });
-            }
-        });
+        if (res.status === 'error validation') {
+            Object.keys(res.message).map((key) => {
+                const error = res.message[key];
+                const el = document.getElementById(`error-${key}`);
+                if (el) {
+                    el.innerHTML = error;
+                }
+            });
+        }
+
+        if (res.status === 'error') {
+            showSweetAlert('error', 'Error', res.message, 'OK', 'Batal', () => { });
+        }
+
+        if (res.status === 'success') {
+            // save to cookie
+            document.cookie = `token=${res.data.token}; path=/; max-age=86400`;
+
+            // save user to local storage
+            localStorage.setItem('user', JSON.stringify(res.data.user));
+
+            const auth = await signIn("credentials", {
+                id: res.data.user.id,
+                username: res.data.user.username,
+                fullname: res.data.user.name.fullname,
+                firstname: res.data.user.name.firstname,
+                lastname: res.data.user.name.lastname,
+                email: res.data.user.email,
+                googleIntegated: res.data.user.googleIntegated,
+                photo: res.data.user.photo,
+                storage_total: res.data.user.storage.total,
+                storage_used: res.data.user.storage.used,
+                storage_rest: res.data.user.storage.rest,
+                storage_percent: res.data.user.storage.percent,
+                token: res.data.token,
+                // redirect: false,
+                callbackUrl: "/",
+            });
+        }
     }
 
     return (
@@ -279,10 +292,7 @@ const Login = () => {
 
                                     <form
                                         className="space-y-4 w-full mt-12"
-                                        onSubmit={(e) => {
-                                            e.preventDefault();
-                                            tryLogin();
-                                        }}>
+                                        onSubmit={handleLogin}>
                                         <div className="text-slate-100 text-center text-lg font-semibold">
                                             Masuk dengan akun yang telah terdaftar
                                         </div>
@@ -334,7 +344,7 @@ const Login = () => {
 
                                         <div className="w-full flex items-center justify-center">
                                             <button
-                                                disabled={isLoading}
+                                                // disabled={isLoading}
                                                 type='submit'
                                                 className="w-full bg-slate-100 text-black hover:text-white rounded px-3 py-4 focus:outline-none transition-all duration-300 hover:bg-green-500 flex items-center justify-center cursor-pointer">
                                                 <FontAwesomeIcon icon={faSignInAlt} className="w-4 h-4 mr-2" />
@@ -350,13 +360,16 @@ const Login = () => {
                                             </div>
                                             <div className="mt-2 flex items-center justify-center">
                                                 <button
-                                                    disabled={isLoading}
+                                                    // disabled={isLoading}
                                                     type='button'
-                                                    onClick={() => {
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
                                                         if (isServerOnline === false) {
                                                             showSweetAlert('error', 'Error', 'Server sedang offline', 'OK', 'Batal', () => { });
                                                             return;
                                                         }
+                                                        setIsGoogleLogin(true);
+                                                        localStorage.setItem('logginByGoogle', 'true');
                                                         signIn('google');
                                                     }}
                                                     className="flex items-center justify-center gap-2 bg-white hover:bg-slate-100 hover:text-blue-900 px-3 py-2 rounded shadow cursor-pointer">

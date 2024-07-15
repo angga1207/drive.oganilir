@@ -6,7 +6,12 @@ import { BaseUri } from "./serverIP";
 import { setCookie, getCookie, hasCookie, deleteCookie } from 'cookies-next';
 
 const baseUri = BaseUri();
-const CurrentToken = getCookie('token');
+// const CurrentToken = getCookie('token');
+
+var CurrentToken = '';
+if (typeof window !== 'undefined') {
+    CurrentToken = document.cookie.split('=')[1];
+}
 
 export async function getPath(slug: any = null) {
     try {
@@ -14,6 +19,7 @@ export async function getPath(slug: any = null) {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${CurrentToken}`,
+                // Authorization: document.cookie,
             },
             params: {
                 slug: slug

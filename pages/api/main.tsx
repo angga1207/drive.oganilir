@@ -6,7 +6,12 @@ import { BaseUri } from "./serverIP";
 import { setCookie, getCookie, hasCookie, deleteCookie } from 'cookies-next';
 
 const baseUri = BaseUri();
-const CurrentToken = getCookie('token');
+// const CurrentToken = getCookie('token');
+
+var CurrentToken = '';
+if (typeof window !== 'undefined') {
+    CurrentToken = document.cookie.split('=')[1];
+}
 
 
 export async function getItems(slug: any = null, sort: any = 'created_at', order: any = 'asc') {
