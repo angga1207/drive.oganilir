@@ -87,6 +87,7 @@ const Login = () => {
                     }
                 });
             }
+            setIsLoading(false);
         }
     }, [mySess]);
 
