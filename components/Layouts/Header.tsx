@@ -31,8 +31,8 @@ const Header = () => {
             if (result.isConfirmed) {
                 document.cookie = "token=; path=/; max-age=0";
                 localStorage.setItem('logginByGoogle', 'false')
-                // window.location.href = '/login';
                 signOut();
+                window.location.href = '/login';
             }
         }).catch((error) => {
             console.log(error);
@@ -57,7 +57,9 @@ const Header = () => {
             if (localStorage.getItem('logginByGoogle') === 'true' && MySess.status === 'unauthenticated') {
                 localStorage.removeItem('token');
                 deleteCookie('token');
-                // alert(123)
+                document.cookie = "token=; path=/; max-age=0";
+                localStorage.setItem('logginByGoogle', 'false')
+                signOut();
                 window.location.href = '/login';
             }
         }
