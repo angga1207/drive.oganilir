@@ -411,10 +411,6 @@ const Main = () => {
     }, [files.files]);
 
     const AxiosUploads = async (files: any) => {
-        var CurrentToken = '';
-        if (typeof window !== 'undefined') {
-            CurrentToken = document.cookie.split('=')[1];
-        }
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const fileName = file.name;
