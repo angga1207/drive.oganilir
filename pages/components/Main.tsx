@@ -261,27 +261,6 @@ const Main = () => {
                     setDatas(res.data);
                 }
                 if (res.status === 'error') {
-                    // if (res?.message?.response?.statusText === "Unauthorized") {
-                    //     Swal.fire({
-                    //         title: 'Sesi Anda telah berakhir',
-                    //         text: 'Silahkan login kembali',
-                    //         icon: 'info',
-                    //         showCancelButton: false,
-                    //         confirmButtonText: 'Login',
-                    //         cancelButtonText: 'Tutup',
-                    //     }).then((result) => {
-                    //         if (result.isConfirmed) {
-                    //             // router.push('/login');
-                    //         }
-                    //         if (result.isDismissed) {
-                    //             // router.push('/login');
-                    //         }
-                    //     });
-                    // }
-                    // else {
-                    //     // router.push('/login');
-                    //     // showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
-                    // }
                 }
                 setIsLoaded(false);
             });
@@ -296,26 +275,6 @@ const Main = () => {
             }
 
             if (res.status === 'error') {
-                // if (res.message.response.statusText === "Unauthorized") {
-                //     Swal.fire({
-                //         title: 'Sesi Anda telah berakhir',
-                //         text: 'Silahkan login kembali',
-                //         icon: 'info',
-                //         showCancelButton: false,
-                //         confirmButtonText: 'Login',
-                //         cancelButtonText: 'Tutup',
-                //     }).then((result) => {
-                //         if (result.isConfirmed) {
-                //             router.push('/login');
-                //         }
-                //         if (result.isDismissed) {
-                //             router.push('/login');
-                //         }
-                //     });
-                // }
-                // else {
-                //     // router.push('/login');
-                // }
             }
             setIsLoaded(false);
         });
@@ -452,6 +411,10 @@ const Main = () => {
     }, [files.files]);
 
     const AxiosUploads = async (files: any) => {
+        var CurrentToken = '';
+        if (typeof window !== 'undefined') {
+            CurrentToken = document.cookie.split('=')[1];
+        }
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const fileName = file.name;
@@ -463,7 +426,7 @@ const Main = () => {
                 const res = await axios.post(`${BaseUri()}/upload/${ID}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${CurrentToken}`,
                     },
                     onUploadProgress: (progressEvent: any) => {
                         const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
