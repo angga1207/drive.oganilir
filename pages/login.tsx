@@ -42,16 +42,31 @@ const Login = () => {
     }, []);
 
     useEffect(() => {
-        if (isMounted) {
-            serverCheck().then((res) => {
-                if (res.status == 'success') {
-                    setIsServerOnline(true);
-                } else {
-                    setIsServerOnline(false);
-                }
-            });
-        }
+        // if (isMounted) {
+        retryServerCheck();
+        // }
     }, [isMounted]);
+
+    const retryServerCheck = () => {
+        serverCheck().then((res) => {
+            if (res.status == 'success') {
+                setIsServerOnline(true);
+            } else {
+                setIsServerOnline(false);
+            }
+        });
+    }
+
+    // trigger server check every 5 seconds
+    useEffect(() => {
+        if (isServerOnline === false) {
+            const interval = setInterval(() => {
+                retryServerCheck();
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }
+    }, [isServerOnline]);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
