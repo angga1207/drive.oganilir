@@ -22,7 +22,7 @@ import Swal from 'sweetalert2';
 import Head from "next/head";
 import axios from "axios";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 const showSweetAlert = async (icon: any, title: any, text: any, confirmButtonText: any) => {
     Swal.fire({
@@ -257,6 +257,9 @@ const Main = () => {
         if (readyToLoad) {
             setIsLoaded(true);
             getItems(router.query._id, sortBy, sortOrder).then((res) => {
+                if (res?.message?.response?.status === 401) {
+                    signOut();
+                }
                 if (res.status === 'success') {
                     setDatas(res.data);
                 }
@@ -270,10 +273,12 @@ const Main = () => {
     const reloadItems = () => {
         // setIsLoaded(true);
         getItems(router.query._id, sortBy, sortOrder).then((res) => {
+            if (res?.message?.response?.status === 401) {
+                signOut();
+            }
             if (res.status === 'success') {
                 setDatas(res.data);
             }
-
             if (res.status === 'error') {
             }
             setIsLoaded(false);
