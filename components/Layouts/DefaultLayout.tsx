@@ -85,7 +85,7 @@ const DefaultLayout = ({ children }: PropsWithChildren) => {
 
     return (
         <App>
-            <div className='w-screen h-screen bg-gradient-to-b from-slate-100/10 from-0% to-120% to-slate-500'>
+            <div className='w-screen md:h-screen bg-gradient-to-b from-slate-100/10 from-0% to-120% to-slate-500'>
                 <Header />
                 <div className="container">
                     {children}

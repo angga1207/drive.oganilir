@@ -53,8 +53,16 @@ const Users = () => {
         }
     }, [isMounted, currentPage])
 
+    useEffect(() => {
+        if (isMounted) {
+            setIsLoading(true);
+            setDatas([]);
+        }
+    }, [currentPage])
+
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const __getUsers = () => {
+        setIsLoading(true);
         getUsers(search, currentPage).then((res) => {
             if (res.status === 'success') {
                 setDatas(res.data.data);
@@ -68,6 +76,7 @@ const Users = () => {
                     }]);
                 }
             }
+            setIsLoading(false);
         })
     }
 
@@ -187,7 +196,7 @@ const Users = () => {
             </Head>
             <div className="my-6 p-4 bg-white shadow rounded">
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row gap-5 items-center justify-between">
                     <div className="font-semibold text-lg">
                         Daftar Pengguna
                     </div>
@@ -218,7 +227,7 @@ const Users = () => {
                     </div>
                 </div>
 
-                <div className="mt-5 h-[calc(100vh-280px)] overflow-auto">
+                <div className="mt-5 md:h-[calc(100vh-280px)] overflow-auto">
                     <table className="w-full">
 
                         <thead className="">
@@ -248,7 +257,7 @@ const Users = () => {
                                 <tr key={`user-${data.id}`}>
                                     <td className="p-3">
                                         <div className="flex items-center gap-2">
-                                            <div className="">
+                                            <div className="shrink w-10">
                                                 <img src={data.photo} className="w-10 h-10 rounded-full" />
                                             </div>
                                             <div className="">
@@ -320,13 +329,23 @@ const Users = () => {
                                     </td>
                                 </tr>
                             ))}
+
+                            {isLoading && (
+                                <>
+                                    <tr>
+                                        <td colSpan={5} className="p-3 text-center">
+                                            Memuat Data...
+                                        </td>
+                                    </tr>
+                                </>
+                            )}
                         </tbody>
                     </table>
                 </div>
 
                 {pages?.length > 0 && (
                     <div className="w-full pt-2">
-                        <div className="flex items-center justify-center">
+                        <div className="flex flex-wrap gap-y-4 items-center justify-center">
 
                             <div
                                 onClick={(e) => {
@@ -349,7 +368,7 @@ const Users = () => {
                                         e.preventDefault();
                                         setCurrentPage(page.label);
                                     }}
-                                    className="px-2 py-1.5 mx-1 block rounded cursor-pointer bg-sky-200">
+                                    className={`${currentPage == page.page ? 'bg-sky-500 text-white' : ''} px-2 py-1.5 mx-1 block rounded cursor-pointer bg-sky-200`}>
                                     <span className="cursor-pointer"
                                         onClick={(e) => {
                                             e.preventDefault();

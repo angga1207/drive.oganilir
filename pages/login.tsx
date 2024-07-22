@@ -57,7 +57,7 @@ const Login = () => {
         });
     }
 
-    // trigger server check every 5 seconds
+    // trigger server check every 1 seconds
     useEffect(() => {
         if (isServerOnline === false) {
             const interval = setInterval(() => {
@@ -191,12 +191,13 @@ const Login = () => {
                 />
             </Head>
 
-            <div className="w-screen relative bg-slate-200">
+            <div className="w-screen overflow-hidden relative bg-slate-200">
                 <div className="h-full w-full p-5 lg:p-12 flex items-center justify-center relative overflow-hidden">
-                    <div className="h-full w-full p-12 md:rounded-lg shadow backdrop-blur-3xl bg-gradient-to-r from-cyan-500 to-blue-500">
+                    <div className="h-full w-full px-2 py-4 md:px-12 md:rounded-lg shadow backdrop-blur-3xl bg-gradient-to-r from-cyan-500 to-blue-500">
                         <div className="container relative">
 
                             <div className="grid md:grid-cols-12 grid-cols-1 items-center gap-[30px]">
+
                                 <div className="md:col-span-8 hidden md:block">
                                     <div className="md:me-6">
                                         <h4 className="font-semibold text-4xl/tight lg:text-6xl/tight capitalize text-white mb-4">
@@ -227,8 +228,7 @@ const Login = () => {
                                 </div>
 
                                 <div className="md:col-span-4 aos-init flex items-center justify-center flex-col gap-5 min-h-[calc(100vh-200px)]">
-
-                                    <div className="flex items-center justify-center gap-4 w-full">
+                                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full">
                                         <img
                                             src="/logo.png"
                                             className="h-[70px]"
@@ -315,7 +315,6 @@ const Login = () => {
                                             </div>
                                         </div>
                                     </div>
-
                                     <form
                                         className="space-y-4 w-full mt-12"
                                         onSubmit={handleLogin}>
@@ -409,6 +408,7 @@ const Login = () => {
                                         </div>
                                     </form>
                                 </div>
+
                             </div>
                         </div>
                     </div>

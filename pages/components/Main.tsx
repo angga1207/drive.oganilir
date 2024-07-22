@@ -919,7 +919,9 @@ const Main = () => {
 
                                     </div>
                                 ) : (
-                                    <div className="h-9 w-[100px] bg-sky-200 rounded animate-pulse"></div>
+                                    <>
+                                        {/* <div className="h-9 w-[100px] bg-sky-200 rounded animate-pulse"></div> */}
+                                    </>
                                 )}
 
 
@@ -942,8 +944,8 @@ const Main = () => {
 
                         {(isPathLoaded == true && isInTrash == false) ? (
                             <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2">
-                                <div className="relative">
-                                    <form className="relative"
+                                <div className="relative grow w-full">
+                                    <form className="relative w-full"
                                         onSubmit={(e) => {
                                             e.preventDefault();
                                             __getSearch();
@@ -958,7 +960,7 @@ const Main = () => {
                                             onFocus={() => {
                                                 setIsOpenSearchBar(true);
                                             }}
-                                            className={`${isOpenSearchBar ? 'w-[400px]' : 'w-[200px]'} max-w-[calc(100vw-150px)] border border-gray-300 rounded-xl px-3 py-2 pl-10 focus:outline-none transition-all duration-300`}
+                                            className={`w-full max-w-full ${isOpenSearchBar ? 'md:w-[400px]' : 'md:w-[200px]'} md:max-w-[calc(100vw-150px)] border border-gray-300 rounded-xl px-3 py-2 pl-10 focus:outline-none transition-all duration-300`}
                                             placeholder="Pencarian..." />
                                     </form>
 
@@ -1034,7 +1036,7 @@ const Main = () => {
                             </div>
                         ) : (
                             <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2">
-                                <div className="h-9 w-[200px] bg-slate-200 rounded animate-pulse"></div>
+                                <div className="h-9 w-full md:w-[200px] bg-slate-200 rounded animate-pulse"></div>
                             </div>
                         )}
 
@@ -1211,7 +1213,7 @@ const Main = () => {
                 {/* Main Start */}
                 <div className="grid grid-cols-10 gap-4">
 
-                    <div className={`col-span-10 ${showPanel ? 'md:col-span-8' : 'md:col-span-9'} mt-0 relative overflow-x-auto max-w-full h-[calc(100vh-230px)]`}>
+                    <div className={`col-span-10 ${showPanel ? 'md:col-span-8' : 'md:col-span-9'} mt-0 relative overflow-y-auto overflow-x-hidden max-w-screen md:h-[calc(100vh-230px)]`}>
 
                         {isInTrash == false && (
                             <>
@@ -1461,7 +1463,7 @@ const Main = () => {
                                                 </div>
                                                 <div className="">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="line-clamp-2 font-semibold">
+                                                        <div className="line-clamp-2 font-semibold grow">
                                                             {item.type == 'folder' && (
                                                                 <>
                                                                     {item.name}
@@ -1815,7 +1817,7 @@ const Main = () => {
 
                     </div>
 
-                    <div className={`col-span-10 ${showPanel ? 'md:col-span-2' : 'md:col-span-1'} py-4 px-7 bg-white rounded shadow-lg relative`}>
+                    <div className={`col-span-10 order-first md:order-last ${showPanel ? 'md:col-span-2' : 'md:col-span-1'} py-4 px-7 bg-white rounded shadow-lg relative`}>
                         <div className="flex items-center justify-between">
                             <div className="font-semibold">
                                 {editItem?.name}
@@ -1921,7 +1923,7 @@ const Main = () => {
                             {isInTrash == false && (
                                 <>
                                     {isPathLoaded == true ? (
-                                        <div className="mt-2 hidden xl:block">
+                                        <div className="mt-2">
                                             {/* storageData */}
                                             <Tippy content={`Kapasitas Drive Anda Tersisa ${storageData?.rest ?? 0}`} delay={300}>
                                                 <div className="relative bg-slate-400 border border-slate-300 h-4 w-full rounded-full overflow-hidden cursor-pointer group">
@@ -1946,7 +1948,7 @@ const Main = () => {
                                             </Tippy>
                                         </div>
                                     ) : (
-                                        <div className="mt-2 h-4 w-[300px] bg-slate-200 rounded-xl animate-pulse"></div>
+                                        <div className="mt-2 h-4 w-full bg-slate-200 rounded-xl animate-pulse"></div>
                                     )}
                                 </>
                             )}
@@ -1955,7 +1957,7 @@ const Main = () => {
 
                         </div>
 
-                        <div className="md:absolute bottom-[10px] left-0 w-full">
+                        <div className="hidden md:block md:absolute bottom-[10px] left-0 w-full">
                             <div className="text-xs text-center">
                                 © {new Date().getFullYear() == 2022 ? 2022 : '2022 - ' + new Date().getFullYear()}.
                                 Drive Kabupaten Ogan Ilir.
