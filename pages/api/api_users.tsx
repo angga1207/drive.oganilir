@@ -10,7 +10,7 @@ const baseUri = BaseUri();
 
 var CurrentToken = '';
 if (typeof window !== 'undefined') {
-    CurrentToken = document.cookie.split('=')[1];
+    CurrentToken = document.cookie.split('token=')[1];
 }
 
 

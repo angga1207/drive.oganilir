@@ -47,7 +47,7 @@ const Header = () => {
             try {
                 setUser(JSON.parse(unRaw ?? '{}'));
             } catch (e) {
-                localStorage.removeItem('user');
+                // localStorage.removeItem('user');
             }
         }
     }, [isMounted]);
@@ -55,12 +55,12 @@ const Header = () => {
     useEffect(() => {
         if (isMounted) {
             if (localStorage.getItem('logginByGoogle') === 'true' && MySess.status === 'unauthenticated') {
-                localStorage.removeItem('token');
-                deleteCookie('token');
-                document.cookie = "token=; path=/; max-age=0";
-                localStorage.setItem('logginByGoogle', 'false')
-                signOut();
-                window.location.href = '/login';
+                // localStorage.removeItem('token');
+                // deleteCookie('token');
+                // document.cookie = "token=; path=/; max-age=0";
+                // localStorage.setItem('logginByGoogle', 'false')
+                // signOut();
+                // window.location.href = '/login';
             }
         }
     }, [MySess.status]);
@@ -81,85 +81,85 @@ const Header = () => {
                                 className="h-[50px]"
                                 alt="Logo Ogan Ilir" /> */}
                             <img
-                                src="/logo.png"
-                                className="h-[50px]"
+                                src="/favicon-2.png"
+                                className="h-[50px] animate-pulse delay-0"
                                 alt="Logo Drive Ogan Ilir" />
 
-                            <div className="">
+                            <div className="mt-2">
                                 <div className="duration-[750ms] flex items-end space-x-1 text-white">
                                     <div className="animate-pulse font-bold text-2xl"
                                         style={{
-                                            animationDelay: '0s'
+                                            animationDelay: '0.05s'
                                         }}>
                                         D
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
-                                        animationDelay: '0.05s'
+                                        animationDelay: '0.1s'
                                     }}>
                                         r
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
-                                        animationDelay: '0.1s'
-                                    }}>
-                                        i
-                                    </div>
-                                    <div className="animate-pulse font-bold text-2xl" style={{
                                         animationDelay: '0.15s'
                                     }}>
-                                        v
+                                        i
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
                                         animationDelay: '0.2s'
                                     }}>
-                                        e
+                                        v
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
                                         animationDelay: '0.25s'
                                     }}>
-
+                                        e
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
                                         animationDelay: '0.3s'
                                     }}>
-                                        O
+
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
                                         animationDelay: '0.35s'
                                     }}>
-                                        g
+                                        O
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
                                         animationDelay: '0.4s'
                                     }}>
-                                        a
+                                        g
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
-                                        animationDelay: '0.45s'
+                                        animationDelay: '0.4.5s'
                                     }}>
-                                        n
+                                        a
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
                                         animationDelay: '0.5s'
                                     }}>
-
+                                        n
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
-                                        animationDelay: '0.55s'
+                                        animationDelay: '0.5.5s'
                                     }}>
-                                        I
+
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
                                         animationDelay: '0.6s'
                                     }}>
-                                        l
+                                        I
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
                                         animationDelay: '0.65s'
                                     }}>
-                                        i
+                                        l
                                     </div>
                                     <div className="animate-pulse font-bold text-2xl" style={{
                                         animationDelay: '0.7s'
+                                    }}>
+                                        i
+                                    </div>
+                                    <div className="animate-pulse font-bold text-2xl" style={{
+                                        animationDelay: '0.75s'
                                     }}>
                                         r
                                     </div>

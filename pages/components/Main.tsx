@@ -49,7 +49,7 @@ const showAlert = async (icon: any, title: any, text: any) => {
 
 var CurrentToken = '';
 if (typeof window !== 'undefined') {
-    CurrentToken = document.cookie.split('=')[1];
+    CurrentToken = document.cookie.split('token=')[1];
 }
 
 const Main = () => {
@@ -145,6 +145,7 @@ const Main = () => {
     const [paths, setPaths] = useState<any>([]);
     const [isPathLoaded, setIsPathLoaded] = useState<boolean>(true);
     const [currentPath, setCurrentPath] = useState<any>(null); // [1]
+    const [oldQueryId, setOldQueryId] = useState<any>(null);
 
     useEffect(() => {
         if (router.query._id) {
@@ -156,34 +157,21 @@ const Main = () => {
     }, [router.query._id, ID]);
 
     useEffect(() => {
+        // console.log(router.query._id)
+
         if (readyToLoad) {
-            setIsPathLoaded(false);
-            getPath(router.query._id).then((res) => {
-                if (res.status == 'success') {
-                    setPaths(res.data.paths);
-                    setCurrentPath(res.data.current);
-                    setIsPathLoaded(true);
-                }
-                if (res.status === 'error') {
-                    // if (res.message.response.statusText === "Unauthorized") {
-                    //     Swal.fire({
-                    //         title: 'Sesi Anda telah berakhir',
-                    //         text: 'Silahkan login kembali',
-                    //         icon: 'info',
-                    //         showCancelButton: false,
-                    //         confirmButtonText: 'Login',
-                    //         cancelButtonText: 'Tutup',
-                    //     }).then((result) => {
-                    //         if (result.isConfirmed) {
-                    //             // router.push('/login');
-                    //         }
-                    //     });
-                    // }
-                    // else {
-                    //     showSweetAlert('info', 'Peringatan', res?.message, 'Tutup');
-                    // }
-                }
-            });
+            if(router.query._id !== oldQueryId){
+                // console.log(oldQueryId, router.query._id);
+                setOldQueryId(router.query._id);
+                setIsPathLoaded(false);
+                getPath(router.query._id).then((res) => {
+                    if (res.status == 'success') {
+                        setPaths(res.data.paths);
+                        setCurrentPath(res.data.current);
+                        setIsPathLoaded(true);
+                    }
+                });
+            }
         }
     }, [router.query._id]);
 
@@ -256,7 +244,7 @@ const Main = () => {
     useEffect(() => {
         if (readyToLoad) {
             setIsLoaded(true);
-            getItems(router.query._id, sortBy, sortOrder).then((res) => {
+            getItems(oldQueryId, sortBy, sortOrder).then((res) => {
                 if (res?.message?.response?.status === 401) {
                     signOut();
                 }
@@ -268,11 +256,11 @@ const Main = () => {
                 setIsLoaded(false);
             });
         }
-    }, [router.query._id, sortBy, sortOrder]);
+    }, [paths]);
 
     const reloadItems = () => {
         // setIsLoaded(true);
-        getItems(router.query._id, sortBy, sortOrder).then((res) => {
+        getItems(oldQueryId, sortBy, sortOrder).then((res) => {
             if (res?.message?.response?.status === 401) {
                 signOut();
             }
@@ -812,7 +800,7 @@ const Main = () => {
         <>
             <Head>
                 <title>
-                    {currentPath?.name ?? 'Root'} | Drive Ogan Ilir
+                    {currentPath ? currentPath?.name : 'Root'} | Drive Ogan Ilir
                 </title>
                 <meta
                     name="description"

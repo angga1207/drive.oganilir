@@ -23,7 +23,10 @@ const DefaultLayout = ({ children }: PropsWithChildren) => {
         if (localStorage.getItem('user')) {
             setCurrentUser(localStorage.getItem('user'));
         }
-        const currentToken = localStorage.getItem('token') ?? null;
+
+        // const currentToken = localStorage.getItem('token') ?? null;
+        const currentToken = document.cookie.split('token=')[1] ?? null;
+        // console.log(currentToken)
         if (currentUser && currentToken) {
             fetch(`${baseUri}/fcm`, {
                 method: 'POST',

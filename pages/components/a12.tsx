@@ -21,9 +21,9 @@ const A12 = () => {
 
                     if (res.data == null) {
                         setUsersExist(false);
-                        localStorage.removeItem('token');
+                        // localStorage.removeItem('token');
                         // deleteCookie('token');
-                        localStorage.removeItem('user');
+                        // localStorage.removeItem('user');
                         // router.push('/login');
                     }
                 } else {

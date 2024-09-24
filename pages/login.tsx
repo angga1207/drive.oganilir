@@ -15,6 +15,7 @@ import Head from 'next/head';
 import { serverCheck } from './api/serverIP';
 import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const showSweetAlert = async (icon: any, title: any, text: any, confirmButtonText: any, cancelButtonText: any, callback: any) => {
     Swal.fire({
@@ -32,10 +33,15 @@ const showSweetAlert = async (icon: any, title: any, text: any, confirmButtonTex
 }
 
 const Login = () => {
+    var CurrentToken = '';
+    if (typeof window !== 'undefined') {
+        CurrentToken = document.cookie.split('token=')[1];
+    }
 
     const [isMounted, setIsMounted] = useState(false);
     const [isServerOnline, setIsServerOnline] = useState(false);
     const [isGoogleLogin, setIsGoogleLogin] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         setIsMounted(true);
@@ -59,13 +65,14 @@ const Login = () => {
 
     // trigger server check every 1 seconds
     useEffect(() => {
-        if (isServerOnline === false) {
-            const interval = setInterval(() => {
-                retryServerCheck();
-            }, 1000);
+        // if (isServerOnline === false) {
+        //     const interval = setInterval(() => {
+        //         retryServerCheck();
+        //     }, 1000);
 
-            return () => clearInterval(interval);
-        }
+        //     return () => clearInterval(interval);
+        // }
+        // retryServerCheck();
     }, [isServerOnline]);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -103,8 +110,15 @@ const Login = () => {
                     setIsLoading(false);
                 });
             }
+            if (localStorage.getItem('logginByGoogle') === 'false') {
+                if (isMounted) {
+                    const interval = setInterval(() => {
+                        router.push('/')
+                    }, 1000);
+                }
+            }
         }
-    }, [mySess]);
+    }, [mySess.status]);
 
     const recaptchaRef = useRef<any>();
     const onReCAPTCHAChange = (captchaCode: any) => {
@@ -172,11 +186,13 @@ const Login = () => {
                 storage_rest: res.data.user.storage.rest,
                 storage_percent: res.data.user.storage.percent,
                 token: res.data.token,
-                // redirect: false,
-                callbackUrl: "/",
+                redirect: false,
+                // callbackUrl: "/",
             });
+
         }
     }
+    // console.log(mySess)
 
     return (
         <>
@@ -230,85 +246,85 @@ const Login = () => {
                                 <div className="md:col-span-4 aos-init flex items-center justify-center flex-col gap-5 min-h-[calc(100vh-200px)]">
                                     <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full">
                                         <img
-                                            src="/logo.png"
-                                            className="h-[70px]"
+                                            src="/favicon-2.png"
+                                            className="h-[80px] animate-pulse delay-0"
                                             alt="Logo Drive Ogan Ilir" />
 
-                                        <div className="">
-                                            <div className="duration-[750ms] flex items-end space-x-1 text-white">
-                                                <div className="animate-pulse font-bold text-[40px]"
+                                        <div className="mt-3">
+                                            <div className="duration-[750ms] flex items-end space-x-1 text-white font-bold text-5xl md:text-4xl">
+                                                <div className="animate-pulse"
                                                     style={{
-                                                        animationDelay: '0s'
+                                                        animationDelay: '0.05s'
                                                     }}>
                                                     D
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.05s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.1s'
                                                 }}>
                                                     r
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.1s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.15s'
                                                 }}>
                                                     i
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.15s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.2s'
                                                 }}>
                                                     v
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.2s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.25s'
                                                 }}>
                                                     e
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.25s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.3s'
                                                 }}>
 
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.3s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.35s'
                                                 }}>
                                                     O
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.35s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.4s'
                                                 }}>
                                                     g
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.4s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.4.5s'
                                                 }}>
                                                     a
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.45s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.5s'
                                                 }}>
                                                     n
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.5s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.5.5s'
                                                 }}>
 
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.55s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.6s'
                                                 }}>
                                                     I
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.6s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.65s'
                                                 }}>
                                                     l
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.65s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.7s'
                                                 }}>
                                                     i
                                                 </div>
-                                                <div className="animate-pulse font-bold text-[40px]" style={{
-                                                    animationDelay: '0.7s'
+                                                <div className="animate-pulse" style={{
+                                                    animationDelay: '0.75s'
                                                 }}>
                                                     r
                                                 </div>
