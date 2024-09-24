@@ -161,7 +161,6 @@ const Main = () => {
 
         if (readyToLoad) {
             if(router.query._id !== oldQueryId){
-                // console.log(oldQueryId, router.query._id);
                 setOldQueryId(router.query._id);
                 setIsPathLoaded(false);
                 getPath(router.query._id).then((res) => {
@@ -194,7 +193,6 @@ const Main = () => {
             if (item.parent_slug != ID) {
                 pickFolder(item.parent_slug);
             }
-
             setTimeout(() => {
                 __scrollToFile(item);
             }, 500);
@@ -207,7 +205,6 @@ const Main = () => {
             if (el) {
                 el.scrollIntoView({ behavior: 'smooth' });
             }
-
             setPickedItem(item);
         }
     }

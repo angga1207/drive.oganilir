@@ -113,7 +113,8 @@ const Login = () => {
             if (localStorage.getItem('logginByGoogle') === 'false') {
                 if (isMounted) {
                     const interval = setInterval(() => {
-                        router.push('/')
+                        // router.push('/')
+                        window.location.href = '/';
                     }, 1000);
                 }
             }
