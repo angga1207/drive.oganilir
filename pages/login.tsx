@@ -120,8 +120,6 @@ const Login = () => {
         }
     }, [mySess.status]);
 
-    console.log(mySess)
-
     const recaptchaRef = useRef<any>();
     const onReCAPTCHAChange = (captchaCode: any) => {
         if (captchaCode) {
@@ -173,6 +171,7 @@ const Login = () => {
 
             // save user to local storage
             localStorage.setItem('user', JSON.stringify(res.data.user));
+            console.log(localStorage.getItem('user'))
 
             const auth = await signIn("credentials", {
                 id: res.data.user.id,
@@ -194,7 +193,6 @@ const Login = () => {
 
         }
     }
-    // console.log(mySess)
 
     return (
         <>

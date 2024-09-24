@@ -19,7 +19,6 @@ const A12 = () => {
                 if (res.status == 'success') {
                     setIsServerOnline(true);
                     localStorage.setItem('user', JSON.stringify(res.data));
-
                     if (res.data == null) {
                         setUsersExist(false);
                         // localStorage.removeItem('token');
@@ -30,6 +29,7 @@ const A12 = () => {
                 } else {
                     setIsServerOnline(false);
                 }
+                console.log(res.data)
             });
         }
     }, [isMounted]);

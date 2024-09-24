@@ -25,7 +25,7 @@ export async function serverCheck() {
 
         var CurrentToken = '';
         if (typeof window !== 'undefined') {
-            CurrentToken = document.cookie.split('=')[1];
+            CurrentToken = document.cookie.split('token=')[1];
         }
 
         const res = await axios.post(BaseUri() + '/a12', {}, {
@@ -58,8 +58,9 @@ export async function serverCheck() {
                 localStorage.removeItem('token');
                 deleteCookie('token');
                 window.location.href = '/login';
+            } else {
+                localStorage.setItem('user', JSON.stringify(data.data));
             }
-            localStorage.setItem('user', data.data);
         }
         return data;
     } catch (error) {

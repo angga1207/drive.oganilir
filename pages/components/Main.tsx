@@ -68,13 +68,9 @@ const Main = () => {
             router.push('/login');
         }
         if(!CurrentToken){
-            // signOut();
             router.push('/login');
         }
     }, [mySess]);
-
-    // console.log(mySess, CurrentToken)
-    // console.log(CurrentToken)
 
     const [user, setUser] = useState<any>(null);
     const [storageData, setStorageData] = useState<any>(null);
