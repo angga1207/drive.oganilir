@@ -113,13 +113,14 @@ const Login = () => {
             if (localStorage.getItem('logginByGoogle') === 'false') {
                 if (isMounted) {
                     const interval = setInterval(() => {
-                        // router.push('/')
                         window.location.href = '/';
                     }, 1000);
                 }
             }
         }
     }, [mySess.status]);
+
+    console.log(mySess)
 
     const recaptchaRef = useRef<any>();
     const onReCAPTCHAChange = (captchaCode: any) => {

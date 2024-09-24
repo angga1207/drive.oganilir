@@ -31,8 +31,9 @@ const Header = () => {
             if (result.isConfirmed) {
                 document.cookie = "token=; path=/; max-age=0";
                 localStorage.setItem('logginByGoogle', 'false')
+                deleteCookie('token');
                 signOut();
-                window.location.href = '/login';
+                // window.location.href = '/login';
             }
         }).catch((error) => {
             console.log(error);
@@ -47,7 +48,7 @@ const Header = () => {
             try {
                 setUser(JSON.parse(unRaw ?? '{}'));
             } catch (e) {
-                // localStorage.removeItem('user');
+                localStorage.removeItem('user');
             }
         }
     }, [isMounted]);

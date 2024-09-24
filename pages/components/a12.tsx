@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { serverCheck } from "../api/serverIP";
+import { deleteCookie } from "cookies-next";
 
 const A12 = () => {
     const router = useRouter();
