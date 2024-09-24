@@ -8,14 +8,14 @@ import axios, { AxiosRequestConfig } from "axios";
 // const CurrentToken = getCookie('token');
 
 export function BaseUri() {
-    const uri = 'http://127.0.0.1:8000/api';
-    // const uri = 'https://drive-backend.oganilirkab.go.id/api';
+    // const uri = 'http://127.0.0.1:8000/api';
+    const uri = 'https://drive-backend.oganilirkab.go.id/api';
     return uri;
 }
 
 export function ClientDomain() {
-    const uri = 'http://localhost:3000';
-    // const uri = 'https://drive.oganilirkab.go.id';
+    // const uri = 'http://localhost:3000';
+    const uri = 'https://drive.oganilirkab.go.id';
     return uri;
 }
 
@@ -48,16 +48,16 @@ export async function serverCheck() {
 
         if (data.message == 'Unauthenticated') {
             // showSweetAlert('info', 'Peringatan', 'Sesi Anda telah berakhir, silahkan login kembali', 'Tutup');
-            // localStorage.removeItem('token');
-            // deleteCookie('token');
-            // window.location.href = '/login';
+            localStorage.removeItem('token');
+            deleteCookie('token');
+            window.location.href = '/login';
         }
 
         if (data.status == 'success') {
             if (data.user === null) {
-                // localStorage.removeItem('token');
-                // deleteCookie('token');
-                // window.location.href = '/login';
+                localStorage.removeItem('token');
+                deleteCookie('token');
+                window.location.href = '/login';
             }
             localStorage.setItem('user', data.data);
         }
