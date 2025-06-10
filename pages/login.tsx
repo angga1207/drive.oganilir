@@ -401,7 +401,7 @@ const Login = () => {
                                             </div>
                                             <div className="mt-2 flex items-center justify-center">
                                                 <button
-                                                    // disabled={isLoading}
+                                                    disabled={isLoading}
                                                     type='button'
                                                     onClick={(e) => {
                                                         e.preventDefault();
